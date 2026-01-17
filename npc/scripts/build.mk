@@ -22,6 +22,20 @@ CXX := clang++
 else
 CXX := g++
 endif
+
+# 检测并启用 ccache 加速编译
+CCACHE := $(shell command -v ccache 2>/dev/null)
+ifdef CCACHE
+  # 如果 CC/CXX 还没有 ccache 前缀，则添加
+  ifeq ($(findstring ccache,$(CC)),)
+    CC := ccache $(CC)
+  endif
+  ifeq ($(findstring ccache,$(CXX)),)
+    CXX := ccache $(CXX)
+  endif
+  $(info [ccache] C++ compilation acceleration enabled)
+endif
+
 LD := $(CXX)
 INCLUDES = $(addprefix -I, $(INC_PATH))
 CFLAGS  := -O2 -MMD -Wall -Werror $(INCLUDES) $(CFLAGS)

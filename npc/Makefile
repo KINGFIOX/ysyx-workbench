@@ -24,7 +24,12 @@ test:
 
 verilog: $(VERILATOR_SV)
 
-$(VERILATOR_SV):
+# 搜集所有 Chisel 源文件作为依赖，实现增量编译
+CHISEL_SRCS := $(shell find $(PRJ)/src -name "*.scala" 2>/dev/null)
+CHISEL_RESOURCES := $(shell find $(PRJ)/resources -name "*.sv" 2>/dev/null)
+
+# 当任何 .scala 文件或 .sv 资源文件修改时，重新生成 Verilog
+$(VERILATOR_SV): $(CHISEL_SRCS) $(CHISEL_RESOURCES)
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
 	$(MILL) -i $(PRJ).runMain npc.NPCSoC --target-dir $(BUILD_DIR)
@@ -33,7 +38,19 @@ $(VERILATOR_SV):
 
 verilate: $(VERILATOR_LIB)
 
-$(VERILATOR_LIB): $(VERILATOR_SV) $(VERILATOR_FILELIST)
+# 收集所有生成的 SV 文件作为依赖
+GENERATED_SVS := $(wildcard $(BUILD_DIR)/*.sv)
+
+# 检测是否安装了 ccache
+CCACHE := $(shell command -v ccache 2>/dev/null)
+ifdef CCACHE
+  VERILATOR_CXX := ccache $(CXX)
+else
+  VERILATOR_CXX := $(CXX)
+endif
+
+# Verilator Makefile 依赖于所有生成的 SV 文件
+$(VERILATOR_MK): $(VERILATOR_SV) $(VERILATOR_FILELIST) $(GENERATED_SVS)
 	@echo "=== Verilating $(VERILATOR_TOP) ==="
 	cd $(BUILD_DIR) && $(VERILATOR) --cc \
 		-f filelist.f \
@@ -43,7 +60,11 @@ $(VERILATOR_LIB): $(VERILATOR_SV) $(VERILATOR_FILELIST)
 		--trace \
 		-O2 -Wall -Wno-fatal \
 		-CFLAGS "-std=c++17 -O2"
-	$(MAKE) -C $(VERILATOR_MDIR) -f V$(VERILATOR_TOP).mk
+
+# Verilator 生成的库依赖于 Verilator Makefile，使用 ccache 编译
+$(VERILATOR_LIB): $(VERILATOR_MK)
+	@echo "=== Building Verilator library (ccache: $(if $(CCACHE),enabled,disabled)) ==="
+	$(MAKE) -C $(VERILATOR_MDIR) -f V$(VERILATOR_TOP).mk CXX="$(VERILATOR_CXX)"
 
 
 # =============================== commands ===============================
