@@ -110,8 +110,12 @@
             export NVBOARD_HOME="$YSYX_HOME/nvboard"
 
             # 重要：覆盖 Nix 设置的交叉编译器，使用原生编译器作为默认
-            export CC="${pkgs.gcc}/bin/gcc"
-            export CXX="${pkgs.gcc}/bin/g++"
+            # 使用 ccache 包装编译器以加速重复编译
+            export CC="ccache ${pkgs.gcc}/bin/gcc"
+            export CXX="ccache ${pkgs.gcc}/bin/g++"
+
+            # ccache 配置：限制缓存大小为 2GB，避免占满硬盘
+            export CCACHE_MAXSIZE="2G"
 
             # RISC-V 工具链前缀
             export CROSS_COMPILE=riscv32-unknown-linux-gnu-

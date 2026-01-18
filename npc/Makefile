@@ -41,14 +41,6 @@ verilate: $(VERILATOR_LIB)
 # 收集所有生成的 SV 文件作为依赖
 GENERATED_SVS := $(wildcard $(BUILD_DIR)/*.sv)
 
-# 检测是否安装了 ccache
-CCACHE := $(shell command -v ccache 2>/dev/null)
-ifdef CCACHE
-  VERILATOR_CXX := ccache $(CXX)
-else
-  VERILATOR_CXX := $(CXX)
-endif
-
 # Verilator Makefile 依赖于所有生成的 SV 文件
 $(VERILATOR_MK): $(VERILATOR_SV) $(VERILATOR_FILELIST) $(GENERATED_SVS)
 	@echo "=== Verilating $(VERILATOR_TOP) ==="
@@ -61,10 +53,10 @@ $(VERILATOR_MK): $(VERILATOR_SV) $(VERILATOR_FILELIST) $(GENERATED_SVS)
 		-O2 -Wall -Wno-fatal \
 		-CFLAGS "-std=c++17 -O2"
 
-# Verilator 生成的库依赖于 Verilator Makefile，使用 ccache 编译
+# Verilator 生成的库依赖于 Verilator Makefile
 $(VERILATOR_LIB): $(VERILATOR_MK)
-	@echo "=== Building Verilator library (ccache: $(if $(CCACHE),enabled,disabled)) ==="
-	$(MAKE) -C $(VERILATOR_MDIR) -f V$(VERILATOR_TOP).mk CXX="$(VERILATOR_CXX)"
+	@echo "=== Building Verilator library ==="
+	$(MAKE) -C $(VERILATOR_MDIR) -f V$(VERILATOR_TOP).mk
 
 
 # =============================== commands ===============================
