@@ -5,8 +5,8 @@ import chisel3.util._
 
 import common.{HasCSRParameter, HasCoreParameter, HasRegFileParameter}
 import component.CSRUDebugBundle
-import component.{AXI4LitePmemSlave, AXI4LiteErrorSlave}
 import general.{AXI4LiteXBar, AXI4LiteXBarParams, AXI4LiteParams}
+import mem.{AXI4LiteErrorSlave, AXI4LitePmemSlave}
 
 /** 用来给 Verilator 暴露提交信息, 便于在 C++ 侧采样做差分测试 */
 class DebugBundle extends Bundle with HasCoreParameter with HasRegFileParameter with HasCSRParameter {
@@ -32,10 +32,12 @@ class NPCSoC(params: AXI4LiteParams) extends Module {
   private val xbarParams = AXI4LiteXBarParams(
     axi = params,
     numMasters = 2, // IFU (icache) 和 LSU (dcache) 作为 master
-    numSlaves = 2, // error slave + pmem slave
+    numSlaves = 4, // error slave + pmem slave
     addrMap = Seq(
       (BigInt(0), BigInt(0)),                      // slave 0: error (空范围，永不匹配，作为默认)
-      (BigInt(0x8000_0000L), BigInt(0x1000_0000L)) // slave 1: pmem
+      (BigInt(0x8000_0000L), BigInt(0x1000_0000L)), // slave 1: pmem
+      (BigInt(0x1000_0000L), BigInt(8)), // slave 2: uart
+      (BigInt(0xa000_0048L), BigInt(8)) // slave 3: timer
     )
   )
 
@@ -48,10 +50,14 @@ class NPCSoC(params: AXI4LiteParams) extends Module {
   // 创建 slaves
   private val errorSlave = Module(new AXI4LiteErrorSlave(params))
   private val memSlave = Module(new AXI4LitePmemSlave(params))
+  private val uartSlave = Module(new AXI4LitePmemSlave(params))
+  private val timerSlave = Module(new AXI4LitePmemSlave(params))
 
   // 连接 xbar 的 slave 端口
   xbar.io.slaves(0) <> errorSlave.io.axi  // error slave (默认)
-  xbar.io.slaves(1) <> memSlave.io.axi    // pmem slave
+  xbar.io.slaves(1) <> memSlave.io.axi
+  xbar.io.slaves(2) <> uartSlave.io.axi
+  xbar.io.slaves(3) <> timerSlave.io.axi
 }
 
 object NPCSoC extends App with HasCoreParameter {
