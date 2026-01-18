@@ -6,12 +6,10 @@ import common.HasCoreParameter
 import common.HasRegFileParameter
 import common.HasCSRParameter
 
-class CSRUInputBundle extends Bundle with HasCoreParameter with HasCSRParameter {
-  val raddr    = UInt(NRCSRbits.W) // csr 读取
-  val wop       = CSROpType() // csr 写入
-  val wen      = Bool()
-  val waddr    = UInt(NRCSRbits.W)
-  val wdata = UInt(XLEN.W) // rs1_data
+// 指令执行完成、指令发生了异常, 需要 commit(交付)
+class CSRCommitIO extends Bundle with HasCoreParameter {
+  val xepc = UInt(XLEN.W); val xepc_wen = Bool()
+  val xcause = UInt(XLEN.W); val xcause_wen = Bool()
 }
 
 class CSRUDebugBundle extends Bundle with HasCoreParameter with HasCSRParameter {
@@ -25,15 +23,24 @@ class CSRUDebugBundle extends Bundle with HasCoreParameter with HasCSRParameter 
   val marchid   = UInt(XLEN.W)
 }
 
-class CSRUOutputBundle extends Bundle with HasCoreParameter with HasCSRParameter {
-  val rdata  = UInt(XLEN.W)
-  val debug = new CSRUDebugBundle // difftest
-}
-
 class CSRU extends Module with HasCoreParameter with HasCSRParameter {
   val io = IO(new Bundle {
-    val in  = Flipped(new CSRUInputBundle)
-    val out = new CSRUOutputBundle
+    // for `csr instruction`
+    val addr = Input(UInt(NRCSRbits.W))
+    val wop = Input(CSROpType())
+    val wen = Input(Bool())
+    val wdata = Input(UInt(XLEN.W)) // rs1_data
+    val rdata = Output(UInt(XLEN.W))
+
+    // for `commit`
+    val commit = Flipped(new CSRCommitIO)
+
+    // for `exception` and `mret`
+    val xepc   = Output(UInt(XLEN.W))
+    val xtvec = Output(UInt(XLEN.W))
+
+    // for difftest
+    val debug = new CSRUDebugBundle
   })
 
   // ==================== CSR 寄存器定义 ====================
@@ -51,6 +58,14 @@ class CSRU extends Module with HasCoreParameter with HasCSRParameter {
   private val mcycle = RegInit(0.U(64.W))
   mcycle := mcycle + 1.U
 
+  // ==================== commit ====================
+  when(io.commit.xcause_wen) { mcause := io.commit.xcause }
+  when(io.commit.xepc_wen) { mepc := io.commit.xepc }
+
+  // ==================== commit ====================
+  io.xepc := mepc
+  io.xtvec := mtvec
+
   // ==================== 读取映射表 ====================
   private val csrReadMap = Seq(
     (MSTATUS.U, mstatus),
@@ -63,36 +78,34 @@ class CSRU extends Module with HasCoreParameter with HasCSRParameter {
     (MARCHID.U, marchid)      // marchid 地址
   )
 
-  // ==================== 读取 CSR ====================
-  private val csrRdata = MuxLookup(io.in.raddr, 0.U)(csrReadMap)
-  io.out.rdata := csrRdata
+  // ==================== 读取 CSR() ====================
+  private val csrRdata = MuxLookup(io.addr, 0.U)(csrReadMap)
+  io.rdata := csrRdata
 
-  // ==================== 计算写入数据 ====================
+  // ==================== 计算写入数据(wdata, waddr, wen) ====================
   // CSRRW: wdata = rs1
   // CSRRS: wdata = csr | rs1
   private val csrWdata = MuxCase(
-    io.in.wdata,
+    io.wdata,
     Seq(
-      (io.in.wop === CSROpType.CSR_RW) -> io.in.wdata,
-      (io.in.wop === CSROpType.CSR_RS) -> (csrRdata | io.in.wdata)
+      (io.wop === CSROpType.CSR_RW) -> io.wdata,
+      (io.wop === CSROpType.CSR_RS) -> (csrRdata | io.wdata)
     )
   )
-
-  // ==================== 写入 CSR ====================
-  when(io.in.wen) {
-    when(io.in.waddr === MSTATUS.U) { mstatus := csrWdata }
-    when(io.in.waddr === MTVEC.U) { mtvec := csrWdata }
-    when(io.in.waddr === MEPC.U) { mepc := csrWdata }
-    when(io.in.waddr === MCAUSE.U) { mcause := csrWdata }
+  when(io.wen) {
+    when(io.addr === MSTATUS.U) { mstatus := csrWdata }
+    when(io.addr === MTVEC.U) { mtvec := csrWdata }
+    when(io.addr === MEPC.U) { mepc := csrWdata }
+    when(io.addr === MCAUSE.U) { mcause := csrWdata }
   }
 
   // ==================== debug 输出 ====================
-  io.out.debug.mstatus := mstatus
-  io.out.debug.mtvec := mtvec
-  io.out.debug.mepc := mepc
-  io.out.debug.mcause := mcause
-  io.out.debug.mcycle    := mcycle(31, 0)
-  io.out.debug.mcycleh   := mcycle(63, 32)
-  io.out.debug.mvendorid := mvendorid
-  io.out.debug.marchid   := marchid
+  io.debug.mstatus := mstatus
+  io.debug.mtvec := mtvec
+  io.debug.mepc := mepc
+  io.debug.mcause := mcause
+  io.debug.mcycle    := mcycle(31, 0)
+  io.debug.mcycleh   := mcycle(63, 32)
+  io.debug.mvendorid := mvendorid
+  io.debug.marchid   := marchid
 }

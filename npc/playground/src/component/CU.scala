@@ -250,9 +250,6 @@ class CU extends Module with HasCoreParameter with HasRegFileParameter {
 
   /* ---------- MRET: 从异常返回 ---------- */
   when(inst === MRET) {
-    io.out.immType := ImmType.IMM_I
-    io.out.csrOp := CSROpType.CSR_RW
-    io.out.csrWen := false.B
     io.out.npcOp := NPCOpType.NPC_MRET
     invalidInst := false.B
   }

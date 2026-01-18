@@ -5,11 +5,11 @@ import chisel3.util._
 import common.HasCoreParameter
 import blackbox.ExceptionDpiWrapper
 
-class EXCUOutputBundle extends Bundle with HasCoreParameter {
+class EXCPUOutputBundle extends Bundle with HasCoreParameter {
   val mcause = UInt(XLEN.W)
 }
 
-class EXCUInputBundle extends Bundle with HasCoreParameter {
+class EXCPUInputBundle extends Bundle with HasCoreParameter {
   val ifu = IFUExceptionType(); val ifuEn = Bool()
   val cu = CUExceptionType(); val cuEn = Bool()
   val lsu = MemUExceptionType(); val lsuEn = Bool()
@@ -18,11 +18,15 @@ class EXCUInputBundle extends Bundle with HasCoreParameter {
 }
 
 
-class EXCU extends Module {
+class EXCPU extends Module {
   val io = IO(new Bundle {
-    val in = Flipped(new EXCUInputBundle)
-    val out = ValidIO(new EXCUOutputBundle)
+    val in = Flipped(DecoupledIO(new EXCPUInputBundle))
+    val out = DecoupledIO(new EXCPUOutputBundle)
   })
+
+  io.in.ready := true.B
+
+  private val ins = io.in.bits
 
   /* ========== exception 与 mcause 的映射 ========== */
   private val ifuExceptionMcauseMap = Seq(
@@ -48,19 +52,17 @@ class EXCU extends Module {
 
   // IFU > CU > LSU
   private val mcause = MuxCase(0.U, Seq(
-    io.in.ifuEn -> MuxLookup(io.in.ifu, 0.U)(ifuExceptionMcauseMap.map { case (k, v) => k -> v }),
-    io.in.cuEn  -> MuxLookup(io.in.cu, 0.U)(cuExceptionMcauseMap.map { case (k, v) => k -> v }),
-    io.in.lsuEn -> MuxLookup(io.in.lsu, 0.U)(lsuExceptionMcauseMap.map { case (k, v) => k -> v })
+    ins.ifuEn -> MuxLookup(ins.ifu, 0.U)(ifuExceptionMcauseMap.map { case (k, v) => k -> v }),
+    ins.cuEn  -> MuxLookup(ins.cu, 0.U)(cuExceptionMcauseMap.map { case (k, v) => k -> v }),
+    ins.lsuEn -> MuxLookup(ins.lsu, 0.U)(lsuExceptionMcauseMap.map { case (k, v) => k -> v })
   ))
-  private val hasException = io.in.ifuEn || io.in.cuEn || io.in.lsuEn
+  private val hasException = ins.ifuEn || ins.cuEn || ins.lsuEn
 
   private val exceptionDpiWrapper = Module(new ExceptionDpiWrapper)
-  exceptionDpiWrapper.io.a0_i := io.in.a0
-  exceptionDpiWrapper.io.en_i := io.in.cuEn && (io.in.cu === CUExceptionType.cu_BREAKPOINT)
+  exceptionDpiWrapper.io.a0_i := ins.a0
+  exceptionDpiWrapper.io.en_i := ins.cuEn && (ins.cu === CUExceptionType.cu_BREAKPOINT)
   exceptionDpiWrapper.io.mcause_i := mcause
-  exceptionDpiWrapper.io.pc_i := io.in.pc
-
-
+  exceptionDpiWrapper.io.pc_i := ins.pc
 
   // 输出
   io.out.valid := hasException
