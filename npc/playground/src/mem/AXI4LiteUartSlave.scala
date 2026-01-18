@@ -5,7 +5,7 @@ import chisel3.util._
 import chisel3.util.random.LFSR
 import common.HasCoreParameter
 import general.{AXI4LiteSlaveIO, AXI4LiteParams, AXI4LiteResp}
-import blackbox.UartDummy
+import dpi.DifftestSkipRef
 
 class AXI4LiteUartSlave(params: AXI4LiteParams) extends Module with HasCoreParameter {
   val io = IO(new Bundle {
@@ -55,12 +55,19 @@ class AXI4LiteUartSlave(params: AXI4LiteParams) extends Module with HasCoreParam
   private val write_data_reg = RegInit(0.U(params.dataWidth.W))
   private val write_strb_reg = RegInit(0.U(params.strbWidth.W))
 
-  // DPI
-  private val uartDummy = Module(new UartDummy)
-  uartDummy.io.clock := clock
-  uartDummy.io.en_i := false.B
-  uartDummy.io.data_i := write_data_reg
-  uartDummy.io.strb_i := write_strb_reg
+  // UART 输出使能信号
+  private val uartEnable = WireDefault(false.B)
+  
+  // DPI: 跳过 difftest 参考模型
+  DifftestSkipRef(uartEnable)
+  
+  // UART 字符输出 (替代原来的 $write)
+  when(uartEnable) {
+    when(write_strb_reg(0)) { printf("%c", write_data_reg(7, 0)) }
+    when(write_strb_reg(1)) { printf("%c", write_data_reg(15, 8)) }
+    when(write_strb_reg(2)) { printf("%c", write_data_reg(23, 16)) }
+    when(write_strb_reg(3)) { printf("%c", write_data_reg(31, 24)) }
+  }
 
   // AW
   io.axi.aw.ready := (write_state === WriteState.idle) && !aw_received
@@ -104,7 +111,7 @@ class AXI4LiteUartSlave(params: AXI4LiteParams) extends Module with HasCoreParam
     }
     is(WriteState.writing) {
       when(counter === 0.U) {
-        uartDummy.io.en_i := true.B
+        uartEnable := true.B
         write_state := WriteState.done
       }.otherwise {
         counter := counter - 1.U

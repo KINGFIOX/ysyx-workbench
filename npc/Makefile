@@ -1,9 +1,6 @@
 BUILD_DIR = ./build
 NPC_HOME := $(abspath .)
 
-# Include menuconfig variables
--include $(NPC_HOME)/include/config/auto.conf
-
 MILL := mill
 
 PRJ = playground
@@ -48,11 +45,16 @@ GENERATED_SVS := $(wildcard $(BUILD_DIR)/*.sv)
 VERILATOR_DEFINES := $(if $(CONFIG_DIFFTEST),+define+CONFIG_DIFFTEST,)
 
 # Verilator Makefile 依赖于所有生成的 SV 文件
-$(VERILATOR_MK): $(VERILATOR_SV) $(VERILATOR_FILELIST) $(GENERATED_SVS)
+# Verification layers 绑定文件 (用于 printf 等仿真功能)
+VERILATOR_LAYERS := $(wildcard $(BUILD_DIR)/verification/layers-*.sv)
+
+$(VERILATOR_MK): $(VERILATOR_SV) $(VERILATOR_FILELIST) $(GENERATED_SVS) $(VERILATOR_LAYERS)
 	@echo "=== Verilating $(VERILATOR_TOP) ==="
 	cd $(BUILD_DIR) && $(VERILATOR) --cc \
 		-f filelist.f \
 		-y verification \
+		$(addprefix -y verification/,assert assume cover) \
+		$(patsubst $(BUILD_DIR)/%,%,$(VERILATOR_LAYERS)) \
 		--Mdir obj-verilator \
 		--top-module $(VERILATOR_TOP) \
 		--trace \
