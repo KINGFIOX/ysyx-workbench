@@ -16,11 +16,11 @@ object playground extends ScalaModule with ScalafmtModule { m =>
   )
 
   override def mvnDeps = super.mvnDeps() ++ Seq(
-    mvn"org.chipsalliance::chisel:7.6.0"
+    mvn"org.chipsalliance::chisel:7.7.0"
   )
 
   override def scalacPluginMvnDeps = super.scalacPluginMvnDeps() ++ Seq(
-    mvn"org.chipsalliance:::chisel-plugin:7.6.0"
+    mvn"org.chipsalliance:::chisel-plugin:7.7.0"
   )
 
   object test extends ScalaTests with TestModule.ScalaTest with ScalafmtModule {

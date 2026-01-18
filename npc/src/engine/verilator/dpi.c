@@ -2,9 +2,13 @@
 #include <cpu/cpu.h>
 
 
-int pmem_read_dpi(int en, int addr, int len) {
-  if (!en) return 0;
-  return (int)paddr_read((paddr_t)addr, len);
+// CIRCT DPI ABI: 返回值通过 output 指针参数传递
+void pmem_read_dpi(int en, int addr, int len, int* data) {
+  if (!en) {
+    *data = 0;
+    return;
+  }
+  *data = (int)paddr_read((paddr_t)addr, len);
 }
 
 void pmem_write_dpi(int en, int addr, int strb, int data) {

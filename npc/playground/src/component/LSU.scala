@@ -3,7 +3,6 @@ package component
 import chisel3._
 import chisel3.util._
 import common.HasCoreParameter
-import blackbox.PmemReadDpiWrapper
 import general.AXI4LiteMasterIO
 import general.AXI4LiteParams
 import general.AXI4LiteResp

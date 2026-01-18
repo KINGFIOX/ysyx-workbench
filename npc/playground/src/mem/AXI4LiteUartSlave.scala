@@ -5,7 +5,7 @@ import chisel3.util._
 import chisel3.util.random.LFSR
 import common.HasCoreParameter
 import general.{AXI4LiteSlaveIO, AXI4LiteParams, AXI4LiteResp}
-import blackbox.{PmemReadDpiWrapper, UartDummy}
+import blackbox.UartDummy
 
 class AXI4LiteUartSlave(params: AXI4LiteParams) extends Module with HasCoreParameter {
   val io = IO(new Bundle {

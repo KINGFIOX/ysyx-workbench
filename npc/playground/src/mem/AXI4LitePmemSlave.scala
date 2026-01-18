@@ -5,7 +5,7 @@ import chisel3.util._
 import chisel3.util.random.LFSR
 import common.HasCoreParameter
 import general.{AXI4LiteSlaveIO, AXI4LiteParams, AXI4LiteResp}
-import blackbox.{PmemReadDpiWrapper, PmemWriteDpiWrapper}
+import dpi.{PmemRead, PmemWrite}
 
 class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParameter {
   val io = IO(new Bundle {
@@ -32,12 +32,9 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
   io.axi.r.bits.data := read_data_reg
   io.axi.r.bits.resp := AXI4LiteResp.OKAY
 
-  // DPI
-  private val pmemReadDpiWrapper = Module(new PmemReadDpiWrapper)
-  pmemReadDpiWrapper.io.clock := clock
-  pmemReadDpiWrapper.io.en_i := false.B
-  pmemReadDpiWrapper.io.addr_i := read_addr_reg
-  pmemReadDpiWrapper.io.len_i := 4.U
+  // DPI - 使用新的 Chisel DPI API
+  private val readDpiEnable = WireDefault(false.B)
+  private val readDpiData = PmemRead(readDpiEnable, read_addr_reg, 4.U(32.W))
 
   switch(read_state) {
     is(ReadState.idle) {
@@ -50,15 +47,14 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
     is(ReadState.reading) {
       when(counter === 0.U) {
         read_state := ReadState.latch
-        pmemReadDpiWrapper.io.en_i := true.B
-        pmemReadDpiWrapper.io.addr_i := read_addr_reg
+        readDpiEnable := true.B
       }.otherwise {
         counter := counter - 1.U
       }
     }
     is(ReadState.latch) {
       read_state := ReadState.done
-      read_data_reg := pmemReadDpiWrapper.io.data_o
+      read_data_reg := readDpiData
     }
     is(ReadState.done) {
       when(io.axi.r.fire) {
@@ -83,13 +79,9 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
   private val write_data_reg = RegInit(0.U(params.dataWidth.W))
   private val write_strb_reg = RegInit(0.U(params.strbWidth.W))
 
-  // DPI
-  private val pmemWriteDpiWrapper = Module(new PmemWriteDpiWrapper)
-  pmemWriteDpiWrapper.io.clock  := clock
-  pmemWriteDpiWrapper.io.en_i   := false.B
-  pmemWriteDpiWrapper.io.addr_i := write_addr_reg
-  pmemWriteDpiWrapper.io.strb_i := write_strb_reg
-  pmemWriteDpiWrapper.io.data_i := write_data_reg
+  // DPI - 使用新的 Chisel DPI API
+  private val writeDpiEnable = WireDefault(false.B)
+  PmemWrite(writeDpiEnable, write_addr_reg, write_strb_reg, write_data_reg)
 
   // AW
   io.axi.aw.ready := (write_state === WriteState.idle) && !aw_received
@@ -133,7 +125,7 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
     }
     is(WriteState.writing) {
       when(counter === 0.U) {
-        pmemWriteDpiWrapper.io.en_i := true.B
+        writeDpiEnable := true.B
         write_state := WriteState.done
       }.otherwise {
         counter := counter - 1.U
