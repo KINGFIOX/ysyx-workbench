@@ -42,3 +42,4 @@ test_run_dir/
 
 # markdown
 !BUG_REPORT_DIFFTEST.md
+!BUG_REPORT_DECERR.md

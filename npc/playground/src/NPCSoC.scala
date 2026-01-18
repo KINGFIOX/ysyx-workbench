@@ -5,7 +5,7 @@ import chisel3.util._
 
 import common.{HasCSRParameter, HasCoreParameter, HasRegFileParameter}
 import component.CSRUDebugBundle
-import component.AXI4LitePmemSlave
+import component.{AXI4LitePmemSlave, AXI4LiteErrorSlave}
 import general.{AXI4LiteXBar, AXI4LiteXBarParams, AXI4LiteParams}
 
 /** 用来给 Verilator 暴露提交信息, 便于在 C++ 侧采样做差分测试 */
@@ -29,15 +29,13 @@ class NPCSoC(params: AXI4LiteParams) extends Module {
   io.debug := core.io.debug
   core.io.step := io.step
 
-  // AXI4-Lite Crossbar 配置
-  // 地址映射：内存从 0x80000000 开始，大小为 256MB (0x10000000)
   private val xbarParams = AXI4LiteXBarParams(
     axi = params,
     numMasters = 2, // IFU (icache) 和 LSU (dcache) 作为 master
-    numSlaves = 1,  // 只有一个内存 slave
+    numSlaves = 2, // error slave + pmem slave
     addrMap = Seq(
-      (BigInt(0x8000_0000L), BigInt(0x1000_0000L)), // sram
-      // (BigInt(0x1000_0000L), BigInt(0x1000L)) // uart
+      (BigInt(0), BigInt(0)),                      // slave 0: error (空范围，永不匹配，作为默认)
+      (BigInt(0x8000_0000L), BigInt(0x1000_0000L)) // slave 1: pmem
     )
   )
 
@@ -47,11 +45,13 @@ class NPCSoC(params: AXI4LiteParams) extends Module {
   xbar.io.masters(0) <> core.io.icache
   xbar.io.masters(1) <> core.io.dcache
 
-  // 创建内存 slave
+  // 创建 slaves
+  private val errorSlave = Module(new AXI4LiteErrorSlave(params))
   private val memSlave = Module(new AXI4LitePmemSlave(params))
 
-  // 连接 xbar 的 slave 端口到内存 slave
-  xbar.io.slaves(0) <> memSlave.io.axi
+  // 连接 xbar 的 slave 端口
+  xbar.io.slaves(0) <> errorSlave.io.axi  // error slave (默认)
+  xbar.io.slaves(1) <> memSlave.io.axi    // pmem slave
 }
 
 object NPCSoC extends App with HasCoreParameter {

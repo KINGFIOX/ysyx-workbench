@@ -130,7 +130,7 @@ class AXI4LiteXBar(val p: AXI4LiteXBarParams) extends Module {
 
   // Address decoder: returns slave index for given address
   def addrDecode(addr: UInt): UInt = {
-    val slaveIdx = WireDefault(0.U(p.slaveIdW.W))
+    val slaveIdx = WireDefault(0.U(p.slaveIdW.W)) // default to error slave
     for ((mapping, idx) <- p.addrMap.zipWithIndex) {
       val (base, size) = mapping
       when(addr >= base.U && addr < (base + size).U) {
