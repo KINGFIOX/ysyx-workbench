@@ -1,6 +1,9 @@
 BUILD_DIR = ./build
 NPC_HOME := $(abspath .)
 
+# Include menuconfig variables
+-include $(NPC_HOME)/include/config/auto.conf
+
 MILL := mill
 
 PRJ = playground
@@ -41,6 +44,9 @@ verilate: $(VERILATOR_LIB)
 # 收集所有生成的 SV 文件作为依赖
 GENERATED_SVS := $(wildcard $(BUILD_DIR)/*.sv)
 
+# Verilator defines from menuconfig
+VERILATOR_DEFINES := $(if $(CONFIG_DIFFTEST),+define+CONFIG_DIFFTEST,)
+
 # Verilator Makefile 依赖于所有生成的 SV 文件
 $(VERILATOR_MK): $(VERILATOR_SV) $(VERILATOR_FILELIST) $(GENERATED_SVS)
 	@echo "=== Verilating $(VERILATOR_TOP) ==="
@@ -51,6 +57,7 @@ $(VERILATOR_MK): $(VERILATOR_SV) $(VERILATOR_FILELIST) $(GENERATED_SVS)
 		--top-module $(VERILATOR_TOP) \
 		--trace \
 		-O2 -Wall -Wno-fatal \
+		$(VERILATOR_DEFINES) \
 		-CFLAGS "-std=c++17 -O2"
 
 # Verilator 生成的库依赖于 Verilator Makefile

@@ -6,7 +6,7 @@ import chisel3.util._
 import common.{HasCSRParameter, HasCoreParameter, HasRegFileParameter}
 import component.CSRUDebugBundle
 import general.{AXI4LiteXBar, AXI4LiteXBarParams, AXI4LiteParams}
-import mem.{AXI4LiteErrorSlave, AXI4LitePmemSlave}
+import mem.{AXI4LiteUartSlave, AXI4LiteErrorSlave, AXI4LitePmemSlave}
 
 /** 用来给 Verilator 暴露提交信息, 便于在 C++ 侧采样做差分测试 */
 class DebugBundle extends Bundle with HasCoreParameter with HasRegFileParameter with HasCSRParameter {
@@ -50,7 +50,7 @@ class NPCSoC(params: AXI4LiteParams) extends Module {
   // 创建 slaves
   private val errorSlave = Module(new AXI4LiteErrorSlave(params))
   private val memSlave = Module(new AXI4LitePmemSlave(params))
-  private val uartSlave = Module(new AXI4LitePmemSlave(params))
+  private val uartSlave = Module(new AXI4LiteUartSlave(params))
   private val timerSlave = Module(new AXI4LitePmemSlave(params))
 
   // 连接 xbar 的 slave 端口
