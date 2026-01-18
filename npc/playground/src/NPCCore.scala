@@ -8,7 +8,6 @@ import component._
 import general.AXI4LiteMasterIO
 import general.AXI4LiteParams
 import firrtl.options.Stage
-import blackbox.ExceptionDpiWrapper
 
 // 1. 组件初始化
 // 2. 处理组件的输出信号 (时序) + 组合逻辑元件的输入

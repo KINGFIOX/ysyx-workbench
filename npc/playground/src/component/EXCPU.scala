@@ -3,7 +3,7 @@ package component
 import chisel3._
 import chisel3.util._
 import common.HasCoreParameter
-import blackbox.ExceptionDpiWrapper
+import dpi.ExceptionDpi
 
 class EXCPUOutputBundle extends Bundle with HasCoreParameter {
   val mcause = UInt(XLEN.W)
@@ -58,11 +58,8 @@ class EXCPU extends Module {
   ))
   private val hasException = ins.ifuEn || ins.cuEn || ins.lsuEn
 
-  private val exceptionDpiWrapper = Module(new ExceptionDpiWrapper)
-  exceptionDpiWrapper.io.a0_i := ins.a0
-  exceptionDpiWrapper.io.en_i := ins.cuEn && (ins.cu === CUExceptionType.cu_BREAKPOINT)
-  exceptionDpiWrapper.io.mcause_i := mcause
-  exceptionDpiWrapper.io.pc_i := ins.pc
+  // DPI: 异常处理 (ebreak 时触发)
+  ExceptionDpi(ins.cuEn && (ins.cu === CUExceptionType.cu_BREAKPOINT), ins.pc, mcause, ins.a0)
 
   // 输出
   io.out.valid := hasException
