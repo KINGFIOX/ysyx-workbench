@@ -36,7 +36,8 @@ class NPCSoC(params: AXI4LiteParams) extends Module {
     numMasters = 2, // IFU (icache) 和 LSU (dcache) 作为 master
     numSlaves = 1,  // 只有一个内存 slave
     addrMap = Seq(
-      (BigInt(0x80000000L), BigInt(0x10000000L)) // 内存地址空间
+      (BigInt(0x8000_0000L), BigInt(0x1000_0000L)), // sram
+      // (BigInt(0x1000_0000L), BigInt(0x1000L)) // uart
     )
   )
 

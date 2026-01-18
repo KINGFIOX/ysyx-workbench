@@ -78,18 +78,18 @@ class IFU(params: AXI4LiteParams) extends Module with HasCoreParameter {
   switch(state) {
     is(State.idle) {
       when(io.step) {
-        state := State.ar_wait
-        exceptionEn_reg := false.B // reset
+        when(pcMisaligned) {
+          state := State.done_wait
+          exception_reg := IFUExceptionType.ifu_INSTRUCTION_ADDRESS_MISALIGNED
+          exceptionEn_reg := true.B
+        } .otherwise {
+          state := State.ar_wait
+          exceptionEn_reg := false.B // reset
+        }
       }
     }
     is(State.ar_wait) {
-      when(pcMisaligned) {
-        // 指令地址未对齐异常，不发起总线请求，直接进入 allowin_wait
-        state := State.allowin_wait
-        exception_reg := IFUExceptionType.ifu_INSTRUCTION_ADDRESS_MISALIGNED
-        exceptionEn_reg := true.B
-        inst_reg := 0.U // 无效指令
-      }.elsewhen(io.icache.ar.fire) {
+      when(io.icache.ar.fire) {
         state := State.r_wait
       }
     }

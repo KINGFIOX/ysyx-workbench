@@ -12,28 +12,27 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
     val axi = new AXI4LiteSlaveIO(params)
   })
 
-  // 共用延迟计数器（读写不会同时进行）
-  // 使用 Chisel 自带的 LFSR 生成随机延迟
   private val counter = RegInit(0.U(8.W))
 
   // ========== 读操作状态机 ==========
   object ReadState extends ChiselEnum {
-    val idle, reading, waiting, done = Value
+    val idle, reading, latch, done = Value
   }
 
+  // 锁存
   private val read_state = RegInit(ReadState.idle)
   private val read_addr_reg = RegInit(0.U(params.addrWidth.W))
   private val read_data_reg = RegInit(0.U(params.dataWidth.W))
 
-  // AR 通道握手
+  // AR
   io.axi.ar.ready := (read_state === ReadState.idle)
 
-  // R 通道输出
+  // R
   io.axi.r.valid := (read_state === ReadState.done)
   io.axi.r.bits.data := read_data_reg
   io.axi.r.bits.resp := AXI4LiteResp.OKAY
 
-  // DPI 读取模块
+  // DPI
   private val pmemReadDpiWrapper = Module(new PmemReadDpiWrapper)
   pmemReadDpiWrapper.io.clock := clock
   pmemReadDpiWrapper.io.en_i := false.B
@@ -43,25 +42,23 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
   switch(read_state) {
     is(ReadState.idle) {
       when(io.axi.ar.fire) {
+        read_state := ReadState.reading
         read_addr_reg := io.axi.ar.bits.addr
         counter := LFSR(4)
-        read_state := ReadState.reading
       }
     }
     is(ReadState.reading) {
       when(counter === 0.U) {
-        // 使能 DPI 读取，进入 waiting 状态等待数据就绪
+        read_state := ReadState.latch
         pmemReadDpiWrapper.io.en_i := true.B
         pmemReadDpiWrapper.io.addr_i := read_addr_reg
-        read_state := ReadState.waiting
       }.otherwise {
         counter := counter - 1.U
       }
     }
-    is(ReadState.waiting) {
-      // DPI 使用时序逻辑，数据在这一拍才就绪，采样后转到 done
-      read_data_reg := pmemReadDpiWrapper.io.data_o
+    is(ReadState.latch) {
       read_state := ReadState.done
+      read_data_reg := pmemReadDpiWrapper.io.data_o
     }
     is(ReadState.done) {
       when(io.axi.r.fire) {
@@ -81,11 +78,12 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
   private val aw_received = RegInit(false.B)
   private val w_received  = RegInit(false.B)
 
+  // 锁存
   private val write_addr_reg = RegInit(0.U(params.addrWidth.W))
   private val write_data_reg = RegInit(0.U(params.dataWidth.W))
   private val write_strb_reg = RegInit(0.U(params.strbWidth.W))
 
-  // DPI 写入模块
+  // DPI
   private val pmemWriteDpiWrapper = Module(new PmemWriteDpiWrapper)
   pmemWriteDpiWrapper.io.clock  := clock
   pmemWriteDpiWrapper.io.en_i   := false.B
@@ -93,13 +91,13 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
   pmemWriteDpiWrapper.io.strb_i := write_strb_reg
   pmemWriteDpiWrapper.io.data_i := write_data_reg
 
-  // AW 通道握手：仅在 idle 状态且未收到 AW 时接受
+  // AW
   io.axi.aw.ready := (write_state === WriteState.idle) && !aw_received
 
-  // W 通道握手：仅在 idle 状态且未收到 W 时接受
+  // W
   io.axi.w.ready := (write_state === WriteState.idle) && !w_received
 
-  // B 通道输出
+  // B
   io.axi.b.valid     := (write_state === WriteState.done)
   io.axi.b.bits.resp := AXI4LiteResp.OKAY
 
@@ -127,9 +125,7 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
           write_data_reg := io.axi.w.bits.data
           write_strb_reg := io.axi.w.bits.strb
         }
-
-        counter := LFSR(4)  // 随机延迟
-        // counter := 1.U          // 固定延迟
+        counter := LFSR(4)
         write_state := WriteState.writing
         aw_received := false.B
         w_received  := false.B
@@ -137,7 +133,6 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
     }
     is(WriteState.writing) {
       when(counter === 0.U) {
-        // 只在最后一拍使能写入，避免多次写入 MMIO
         pmemWriteDpiWrapper.io.en_i := true.B
         write_state := WriteState.done
       }.otherwise {
