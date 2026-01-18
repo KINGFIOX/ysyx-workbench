@@ -25,6 +25,14 @@
           mkdir -p $out/include/gnu
           echo "/* Empty stub for rv32 ilp32 ABI compatibility */" > $out/include/gnu/stubs-ilp32.h
         '';
+
+        # 创建 ccache 包装目录，通过 PATH prepend 方式使用 ccache
+        ccacheWrapper = pkgs.runCommand "ccache-wrapper" { } ''
+          mkdir -p $out/bin
+          for prog in gcc g++ cc c++; do
+            ln -s ${pkgs.ccache}/bin/ccache $out/bin/$prog
+          done
+        '';
       in
       {
         devShells.default = pkgs.mkShell {
@@ -109,12 +117,10 @@
             export NPC_HOME="$YSYX_HOME/npc"
             export NVBOARD_HOME="$YSYX_HOME/nvboard"
 
-            # 重要：覆盖 Nix 设置的交叉编译器，使用原生编译器作为默认
-            # 使用 ccache 包装编译器以加速重复编译
-            export CC="ccache ${pkgs.gcc}/bin/gcc"
-            export CXX="ccache ${pkgs.gcc}/bin/g++"
+            # 使用 ccache: 通过 PATH prepend 方式，让 gcc/g++ 调用自动走 ccache
+            export PATH="${ccacheWrapper}/bin:$PATH"
 
-            # ccache 配置：限制缓存大小为 2GB，避免占满硬盘
+            # ccache 配置
             export CCACHE_MAXSIZE="2G"
 
             # RISC-V 工具链前缀
