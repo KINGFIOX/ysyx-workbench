@@ -8,7 +8,6 @@ PRJ = playground
 VERILATOR ?= verilator
 VERILATOR_TOP ?= NPCSoC
 VERILATOR_SV  := $(BUILD_DIR)/$(VERILATOR_TOP).sv
-VERILATOR_FILELIST := $(BUILD_DIR)/filelist.f
 VERILATOR_MDIR := $(BUILD_DIR)/obj-verilator
 VERILATOR_MK  := $(VERILATOR_MDIR)/V$(VERILATOR_TOP).mk
 VERILATOR_LIB := $(VERILATOR_MDIR)/V$(VERILATOR_TOP)__ALL.a
@@ -38,23 +37,16 @@ $(VERILATOR_SV): $(CHISEL_SRCS) $(CHISEL_RESOURCES)
 
 verilate: $(VERILATOR_LIB)
 
-# 收集所有生成的 SV 文件作为依赖
-GENERATED_SVS := $(wildcard $(BUILD_DIR)/*.sv)
-
 # Verilator defines from menuconfig
 VERILATOR_DEFINES := $(if $(CONFIG_DIFFTEST),+define+CONFIG_DIFFTEST,)
 
-# Verilator Makefile 依赖于所有生成的 SV 文件
-# Verification layers 绑定文件 (用于 printf 等仿真功能)
-VERILATOR_LAYERS := $(wildcard $(BUILD_DIR)/verification/layers-*.sv)
-
-$(VERILATOR_MK): $(VERILATOR_SV) $(VERILATOR_FILELIST) $(GENERATED_SVS) $(VERILATOR_LAYERS)
+# Verilator Makefile 依赖于主 SV 文件
+# 注意：不能使用 wildcard 因为它在 Makefile 解析时执行，此时文件可能还不存在
+$(VERILATOR_MK): $(VERILATOR_SV)
 	@echo "=== Verilating $(VERILATOR_TOP) ==="
 	cd $(BUILD_DIR) && $(VERILATOR) --cc \
-		-f filelist.f \
-		-y verification \
-		$(addprefix -y verification/,assert assume cover) \
-		$(patsubst $(BUILD_DIR)/%,%,$(VERILATOR_LAYERS)) \
+		$$(find . -name '*.sv') \
+		-I. -Iverification \
 		--Mdir obj-verilator \
 		--top-module $(VERILATOR_TOP) \
 		--trace \

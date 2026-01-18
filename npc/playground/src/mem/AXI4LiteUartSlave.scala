@@ -12,8 +12,6 @@ class AXI4LiteUartSlave(params: AXI4LiteParams) extends Module with HasCoreParam
     val axi = new AXI4LiteSlaveIO(params)
   })
 
-  private val counter = RegInit(0.U(8.W))
-
   // ========== 读操作状态机(dummy) ==========
   object ReadState extends ChiselEnum {
     val idle, done = Value
@@ -55,19 +53,8 @@ class AXI4LiteUartSlave(params: AXI4LiteParams) extends Module with HasCoreParam
   private val write_data_reg = RegInit(0.U(params.dataWidth.W))
   private val write_strb_reg = RegInit(0.U(params.strbWidth.W))
 
-  // UART 输出使能信号
-  private val uartEnable = WireDefault(false.B)
-  
   // DPI: 跳过 difftest 参考模型
-  DifftestSkipRef(uartEnable)
-  
-  // UART 字符输出 (替代原来的 $write)
-  when(uartEnable) {
-    when(write_strb_reg(0)) { printf("%c", write_data_reg(7, 0)) }
-    when(write_strb_reg(1)) { printf("%c", write_data_reg(15, 8)) }
-    when(write_strb_reg(2)) { printf("%c", write_data_reg(23, 16)) }
-    when(write_strb_reg(3)) { printf("%c", write_data_reg(31, 24)) }
-  }
+  DifftestSkipRef(write_state === WriteState.writing)
 
   // AW
   io.axi.aw.ready := (write_state === WriteState.idle) && !aw_received
@@ -103,19 +90,17 @@ class AXI4LiteUartSlave(params: AXI4LiteParams) extends Module with HasCoreParam
           write_data_reg := io.axi.w.bits.data
           write_strb_reg := io.axi.w.bits.strb
         }
-        counter := LFSR(4)
         write_state := WriteState.writing
         aw_received := false.B
         w_received  := false.B
       }
     }
     is(WriteState.writing) {
-      when(counter === 0.U) {
-        uartEnable := true.B
-        write_state := WriteState.done
-      }.otherwise {
-        counter := counter - 1.U
-      }
+      write_state := WriteState.done
+      when(write_strb_reg(0)) { printf("%c", write_data_reg(7, 0)) }
+      when(write_strb_reg(1)) { printf("%c", write_data_reg(15, 8)) }
+      when(write_strb_reg(2)) { printf("%c", write_data_reg(23, 16)) }
+      when(write_strb_reg(3)) { printf("%c", write_data_reg(31, 24)) }
     }
     is(WriteState.done) {
       when(io.axi.b.fire) {

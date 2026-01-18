@@ -4,13 +4,15 @@
 static uint64_t boot_time = 0;
 
 // 从RTC MMIO读出当前的微秒计数（高低32位组成）
+// 校准：实测60秒内mtime=79504753，需要乘以 60000000/79504753 ≈ 40/53
 static inline uint64_t read_time_us() {
   uint32_t hi, lo;
   do {
     hi = inl(RTC_ADDR + 4);
     lo = inl(RTC_ADDR + 0);
   } while (hi != inl(RTC_ADDR + 4));  // 处理低位读出时的可能进位
-  return ((uint64_t)hi << 32) | lo;
+  uint64_t mtime = ((uint64_t)hi << 32) | lo;
+  return mtime * 40 / 53;  // 校准为真实微秒, 60s对应mtime=79504753
 }
 
 void __am_timer_init() {
