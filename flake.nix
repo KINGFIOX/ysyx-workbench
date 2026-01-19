@@ -102,6 +102,7 @@
             # ========================
             git
             python3
+            ruff # lsp of python
             bear # 生成 compile_commands.json
             ccache
           ];
@@ -123,7 +124,11 @@
             # ccache 配置
             export CCACHE_MAXSIZE="2G"
 
-            # RISC-V 工具链前缀
+            # 主机编译器 (确保 CC/CXX 是主机工具链)
+            export CC=gcc
+            export CXX=g++
+
+            # RISC-V 交叉编译工具链
             export CROSS_COMPILE=riscv32-unknown-linux-gnu-
 
             # Java 设置 (for Mill/Scala)
