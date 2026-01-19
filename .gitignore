@@ -13,7 +13,7 @@
 !.gitignore
 !init.sh
 !/FE/*
-!/D/*
+!/C/*
 
 # Nix Flake
 !flake.nix
