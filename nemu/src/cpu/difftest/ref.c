@@ -40,8 +40,8 @@ __EXPORT void difftest_exec(uint64_t n) {
   cpu_exec(n);
 }
 
-__EXPORT void difftest_raise_intr(word_t NO) {
-  cpu.pc = isa_raise_intr(NO, cpu.pc, 0);
+__EXPORT void difftest_raise_intr(word_t NO, word_t tval) {
+  cpu.pc = isa_raise_intr(NO, cpu.pc, tval);
 }
 
 __EXPORT void difftest_init(int port) {

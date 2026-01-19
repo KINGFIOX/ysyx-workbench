@@ -43,7 +43,7 @@ static inline void difftest_attach() {}
 extern void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction);
 extern void (*ref_difftest_regcpy)(void *dut, bool direction);
 extern void (*ref_difftest_exec)(uint64_t n);
-extern void (*ref_difftest_raise_intr)(uint64_t NO);
+extern void (*ref_difftest_raise_intr)(uint64_t NO, uint64_t tval);
 
 static inline bool difftest_check_reg(const char *name, vaddr_t pc, word_t ref, word_t dut) {
   if (unlikely(ref != dut)) {

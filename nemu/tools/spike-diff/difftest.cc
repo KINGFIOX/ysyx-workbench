@@ -16,6 +16,7 @@
 #include "mmu.h"
 #include "sim.h"
 #include "../../include/common.h"
+#include <cstdint>
 #include <difftest-def.h>
 
 #define NR_GPR MUXDEF(CONFIG_RVE, 16, 32)
@@ -123,8 +124,8 @@ __EXPORT void difftest_init(int port) {
   s->diff_init(port); // 初始化 state, 因此设置 mstatus 要放在这句话之后
 }
 
-__EXPORT void difftest_raise_intr(uint64_t NO) {
-  trap_t t(NO);
+__EXPORT void difftest_raise_intr(uint64_t NO, uint64_t tval) {
+  insn_trap_t t(NO, false, tval);
   p->take_trap_public(t, state->pc);
 }
 

@@ -16,6 +16,8 @@
 #include "../local-include/reg.h"
 #include "common.h"
 #include <isa.h>
+#include <stdint.h>
+#include <cpu/difftest.h>
 #ifdef CONFIG_ETRACE
 #include <cpu/cpu.h>
 #endif
@@ -97,6 +99,8 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc, word_t tval) {
   /* Trigger an interrupt/exception with ``NO''.
    * Then return the address of the interrupt/exception vector.
    */
+  IFDEF(CONFIG_DIFFTEST, ref_difftest_raise_intr(NO, tval));
+  IFDEF(CONFIG_DIFFTEST, difftest_skip_ref());
   csr_write(MCAUSE, NO);
   csr_write(MEPC, epc);
   csr_write(MTVAL, tval);

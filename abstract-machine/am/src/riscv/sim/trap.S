@@ -33,6 +33,7 @@ f(30) f(31)
 #define OFFSET_CAUSE  ((NR_REGS + 0) * XLEN)
 #define OFFSET_STATUS ((NR_REGS + 1) * XLEN)
 #define OFFSET_EPC    ((NR_REGS + 2) * XLEN)
+#define OFFSET_MTVAL  ((NR_REGS + 3) * XLEN)
 
 .align 3
 .globl __am_asm_trap
@@ -44,11 +45,12 @@ __am_asm_trap:
   csrr t0, mcause
   csrr t1, mstatus
   csrr t2, mepc
+  csrr t3, mtval
 
   STORE t0, OFFSET_CAUSE(sp)
   STORE t1, OFFSET_STATUS(sp)
   STORE t2, OFFSET_EPC(sp)
-
+  STORE t3, OFFSET_MTVAL(sp)
   mv a0, sp
   call __am_irq_handle
   mv sp, a0  # 使用返回的 Context 指针作为新的 sp，实现上下文切换

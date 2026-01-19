@@ -30,6 +30,7 @@ const char *csrs[] = {
   [MTVEC] = "mtvec",
   [MEPC] = "mepc",
   [MCAUSE] = "mcause",
+  [MTVAL] = "mtval",
   [MVENDORID] = "mvendorid",
   [MARCHID] = "marchid",
 };

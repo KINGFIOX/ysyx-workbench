@@ -10,6 +10,75 @@ typedef Context*(*handler_t)(Event, Context*);
 
 static handler_t user_handler = NULL;
 
+static void handle_unaligned_load(Context *c) {
+  uint32_t instr = *(uint32_t *)c->mepc;
+  uint32_t rd = (instr >> 7) & 0x1F;
+  uint32_t funct3 = (instr >> 12) & 0x7;
+
+  uintptr_t addr = c->mtval;
+  uintptr_t value = 0;
+
+  switch (funct3) {
+    case 0: // LB - load byte (signed)
+      value = (int8_t)*(uint8_t *)addr;
+      break;
+    case 1: // LH - load halfword (signed)
+      value = (int16_t)(*(uint8_t *)addr | (*(uint8_t *)(addr + 1) << 8));
+      break;
+    case 2: // LW - load word
+      value = *(uint8_t *)addr |
+              (*(uint8_t *)(addr + 1) << 8) |
+              (*(uint8_t *)(addr + 2) << 16) |
+              (*(uint8_t *)(addr + 3) << 24);
+      break;
+    case 4: // LBU - load byte unsigned
+      value = *(uint8_t *)addr;
+      break;
+    case 5: // LHU - load halfword unsigned
+      value = *(uint8_t *)addr | (*(uint8_t *)(addr + 1) << 8);
+      break;
+    default:
+      printf("unknown load funct3: %d\n", funct3); panic("");
+  }
+  printf("addr: %p, value: %08x\n", addr, value);
+
+  if (rd != 0) {  // x0 不可写
+    c->gpr[rd] = value;
+  }
+  c->mepc += 4;  // 跳过这条指令
+}
+
+static void handle_unaligned_store(Context *c) {
+  uint32_t instr = *(uint32_t *)c->mepc;
+  uint32_t funct3 = (instr >> 12) & 0x7;
+  uint32_t rs2 = (instr >> 20) & 0x1F;
+
+  uintptr_t addr = c->mtval;
+  uintptr_t value = c->gpr[rs2];
+
+  printf("addr: %p, value: %08x\n", addr, value);
+
+  switch (funct3) {
+    case 0: // SB - store byte
+      *(uint8_t *)addr = value & 0xFF;
+      break;
+    case 1: // SH - store halfword
+      *(uint8_t *)addr = value & 0xFF;
+      *(uint8_t *)(addr + 1) = (value >> 8) & 0xFF;
+      break;
+    case 2: // SW - store word
+      *(uint8_t *)addr = value & 0xFF;
+      *(uint8_t *)(addr + 1) = (value >> 8) & 0xFF;
+      *(uint8_t *)(addr + 2) = (value >> 16) & 0xFF;
+      *(uint8_t *)(addr + 3) = (value >> 24) & 0xFF;
+      break;
+    default:
+      printf("unknown store funct3: %d\n", funct3); panic("");
+  }
+
+  c->mepc += 4;  // 跳过这条指令
+}
+
 Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
@@ -25,6 +94,10 @@ Context* __am_irq_handle(Context *c) {
       }
     } else {
       switch (mcause) {
+        case 4: // load unaligned
+          handle_unaligned_load(c); break;
+        case 6: // store unaligned
+          handle_unaligned_store(c); break;
         case 11: // ecall
           c->mepc += 4; // 不要忘了系统调用的返回地址要 +4
           if (c->gpr[17] == -1) {
