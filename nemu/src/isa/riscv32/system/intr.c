@@ -84,7 +84,7 @@ void etrace_dump(void) {
 }
 #endif
 
-word_t isa_raise_intr(word_t NO, vaddr_t epc) {
+word_t isa_raise_intr(word_t NO, vaddr_t epc, word_t tval) {
 #ifdef CONFIG_TRACE
   if ((sword_t)NO < 0) { // interrupt
     TODO();
@@ -99,6 +99,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
    */
   csr_write(MCAUSE, NO);
   csr_write(MEPC, epc);
+  csr_write(MTVAL, tval);
   return csr_read(MTVEC);
 }
 

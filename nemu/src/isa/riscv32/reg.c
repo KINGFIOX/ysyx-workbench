@@ -59,6 +59,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
   if (strcmp(s, csrs[MTVEC]) == 0) { return cpu.csr[MTVEC]; }
   if (strcmp(s, csrs[MEPC]) == 0) { return cpu.csr[MEPC]; }
   if (strcmp(s, csrs[MCAUSE]) == 0) { return cpu.csr[MCAUSE]; }
+  if (strcmp(s, csrs[MTVAL]) == 0) { return cpu.csr[MTVAL]; }
   if (strcmp(s, csrs[MVENDORID]) == 0) { return cpu.csr[MVENDORID]; }
   if (strcmp(s, csrs[MARCHID]) == 0) { return cpu.csr[MARCHID]; }
 

@@ -25,6 +25,7 @@ enum {
   MTVEC = 0x0305,
   MEPC = 0x0341,
   MCAUSE = 0x0342,
+  MTVAL = 0x0343,
   MCYCLE = 0x0B00,
   MCYCLEH = 0x0B80,
   MVENDORID = 0x0F11,
@@ -43,10 +44,12 @@ static inline int check_csr_idx(int idx) {
     || idx == MSTATUS
     || idx == MEPC
     || idx == MCAUSE
+    || idx == MTVAL
     || idx == MVENDORID
     || idx == MARCHID
     || idx == MCYCLE
-    || idx == MCYCLEH,
+    || idx == MCYCLEH
+    ,
     "invalid csr index: %d", idx)
   );
   return idx;
