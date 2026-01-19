@@ -1,6 +1,5 @@
 #include <am.h>
-#include <npc.h>
-#include <string.h>
+#include <sim.h>
 
 #define SYNC_ADDR (VGACTL_ADDR + 4)
 

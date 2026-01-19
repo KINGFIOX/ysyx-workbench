@@ -68,12 +68,6 @@ void     unprotect   (AddrSpace *as);
 void     map         (AddrSpace *as, void *vaddr, void *paddr, int prot);
 Context *ucontext    (AddrSpace *as, Area kstack, void *entry);
 
-// ---------------------- MPE: Multi-Processing ----------------------
-bool     mpe_init    (void (*entry)());
-int      cpu_count   (void);
-int      cpu_current (void);
-int      atomic_xchg (int *addr, int newval);
-
 #ifdef __cplusplus
 }
 #endif
