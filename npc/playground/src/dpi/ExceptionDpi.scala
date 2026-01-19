@@ -8,7 +8,7 @@ import chisel3.util.circt.dpi._
   *
   * 对应 C 函数签名:
   * ```c
-  * extern "C" void exception_dpi(int en, int pc, int mcause, int a0);
+  * extern "C" void exception_dpi(int en, int pc, int mcause, int a0, int tval);
   * ```
   *
   * 注意: 原来的 ExceptionDpiWrapper.sv 使用 always @(*) (组合逻辑)，
@@ -16,7 +16,7 @@ import chisel3.util.circt.dpi._
   */
 object ExceptionDpi extends DPIClockedVoidFunctionImport {
   override val functionName = "exception_dpi"
-  override val inputNames = Some(Seq("en", "pc", "mcause", "a0"))
+  override val inputNames = Some(Seq("en", "pc", "mcause", "a0", "tval"))
 
   /** 调用异常处理 DPI
     * @param en 使能信号
@@ -24,6 +24,6 @@ object ExceptionDpi extends DPIClockedVoidFunctionImport {
     * @param mcause 异常原因
     * @param a0 a0 寄存器值
     */
-  def apply(en: Bool, pc: UInt, mcause: UInt, a0: UInt): Unit =
-    super.call(Cat(0.U(31.W), en.asUInt), pc, mcause.pad(32), a0)
+  def apply(en: Bool, pc: UInt, mcause: UInt, a0: UInt, tval: UInt): Unit =
+    super.call(Cat(0.U(31.W), en.asUInt), pc, mcause.pad(32), a0, tval)
 }

@@ -7,12 +7,13 @@ import dpi.ExceptionDpi
 
 class EXCPUOutputBundle extends Bundle with HasCoreParameter {
   val mcause = UInt(XLEN.W)
+  val mtval  = UInt(XLEN.W)
 }
 
 class EXCPUInputBundle extends Bundle with HasCoreParameter {
-  val ifu = IFUExceptionType(); val ifuEn = Bool()
-  val cu = CUExceptionType(); val cuEn = Bool()
-  val lsu = MemUExceptionType(); val lsuEn = Bool()
+  val ifu = IFUExceptionType(); val ifuEn = Bool(); val ifuXtval = UInt(XLEN.W)
+  val cu = CUExceptionType(); val cuEn = Bool(); val cuXtval = UInt(XLEN.W)
+  val lsu = MemUExceptionType(); val lsuEn = Bool(); val lsuXtval = UInt(XLEN.W)
   val a0 = UInt(XLEN.W)
   val pc = UInt(XLEN.W)
 }
@@ -58,10 +59,17 @@ class EXCPU extends Module {
   ))
   private val hasException = ins.ifuEn || ins.cuEn || ins.lsuEn
 
+  private val mtval = MuxCase(0.U, Seq(
+    ins.ifuEn -> io.in.bits.ifuXtval,
+    ins.cuEn -> io.in.bits.cuXtval,
+    ins.lsuEn -> io.in.bits.lsuXtval,
+  ))
+
   // DPI: 异常处理 (ebreak 时触发)
-  ExceptionDpi(ins.cuEn && (ins.cu === CUExceptionType.cu_BREAKPOINT), ins.pc, mcause, ins.a0)
+  ExceptionDpi(ins.cuEn && (ins.cu === CUExceptionType.cu_BREAKPOINT), ins.pc, mcause, ins.a0, mtval)
 
   // 输出
   io.out.valid := hasException
   io.out.bits.mcause := mcause
+  io.out.bits.mtval := mtval
 }

@@ -22,16 +22,13 @@ enum {
   MSTATUS = 0x0300,
   MTVEC = 0x0305,
   MEPC = 0x0341,
-  MCAUSE = 0x342,
-  MCYCLE  = 0x0B00, // skip
-  MCYCLEH = 0x0B80, // skip
+  MCAUSE = 0x0342,
+  MTVAL = 0x0343,
   MVENDORID = 0x0F11,
   MARCHID   = 0x0F12,
 };
 static inline int check_csr_idx(int idx) {
-  IFDEF(CONFIG_RT_CHECK, assert(
-    idx == MTVEC || idx == MSTATUS || idx == MEPC || idx == MCAUSE)
-  );
+  IFDEF(CONFIG_RT_CHECK, assert( idx == MSTATUS || idx == MTVEC || idx == MEPC || idx == MCAUSE || idx == MTVAL || idx == MVENDORID || idx == MARCHID ) );
   return idx;
 }
 #define csr(idx) (cpu.csr[check_csr_idx(idx)])

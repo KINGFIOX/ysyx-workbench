@@ -10,6 +10,7 @@ import common.HasCSRParameter
 class CSRCommitIO extends Bundle with HasCoreParameter {
   val xepc = UInt(XLEN.W); val xepc_wen = Bool()
   val xcause = UInt(XLEN.W); val xcause_wen = Bool()
+  val xtval = UInt(XLEN.W); val xtval_wen = Bool()
 }
 
 class CSRUDebugBundle extends Bundle with HasCoreParameter with HasCSRParameter {
@@ -17,8 +18,7 @@ class CSRUDebugBundle extends Bundle with HasCoreParameter with HasCSRParameter 
   val mtvec     = UInt(XLEN.W)
   val mepc      = UInt(XLEN.W)
   val mcause    = UInt(XLEN.W)
-  val mcycle    = UInt(XLEN.W)
-  val mcycleh   = UInt(XLEN.W)
+  val mtval     = UInt(XLEN.W)
   val mvendorid = UInt(XLEN.W)
   val marchid   = UInt(XLEN.W)
 }
@@ -49,18 +49,16 @@ class CSRU extends Module with HasCoreParameter with HasCSRParameter {
   private val mtvec   = RegInit(0.U(XLEN.W))
   private val mepc    = RegInit(0.U(XLEN.W))
   private val mcause  = RegInit(0.U(XLEN.W))
+  private val mtval   = RegInit(0.U(XLEN.W))
 
   // 只读寄存器
   private val mvendorid = 0x79737978.U(XLEN.W) // "ysyx" in ASCII
   private val marchid   = 26010003.U(XLEN.W)
 
-  // 64位周期计数器
-  private val mcycle = RegInit(0.U(64.W))
-  mcycle := mcycle + 1.U
-
   // ==================== commit ====================
   when(io.commit.xcause_wen) { mcause := io.commit.xcause }
   when(io.commit.xepc_wen) { mepc := io.commit.xepc }
+  when(io.commit.xtval_wen) { mtval := io.commit.xtval }
 
   // ==================== commit ====================
   io.xepc := mepc
@@ -72,8 +70,7 @@ class CSRU extends Module with HasCoreParameter with HasCSRParameter {
     (MTVEC.U, mtvec),
     (MEPC.U, mepc),
     (MCAUSE.U, mcause),
-    (MCYCLE.U, mcycle(31, 0)),
-    (MCYCLEH.U, mcycle(63, 32)),
+    (MTVAL.U, mtval),
     (MVENDORID.U, mvendorid), // mvendorid 地址
     (MARCHID.U, marchid)      // marchid 地址
   )
@@ -97,6 +94,7 @@ class CSRU extends Module with HasCoreParameter with HasCSRParameter {
     when(io.addr === MTVEC.U) { mtvec := csrWdata }
     when(io.addr === MEPC.U) { mepc := csrWdata }
     when(io.addr === MCAUSE.U) { mcause := csrWdata }
+    when(io.addr === MTVAL.U) { mtval := csrWdata }
   }
 
   // ==================== debug 输出 ====================
@@ -104,8 +102,7 @@ class CSRU extends Module with HasCoreParameter with HasCSRParameter {
   io.debug.mtvec := mtvec
   io.debug.mepc := mepc
   io.debug.mcause := mcause
-  io.debug.mcycle    := mcycle(31, 0)
-  io.debug.mcycleh   := mcycle(63, 32)
+  io.debug.mtval := mtval
   io.debug.mvendorid := mvendorid
   io.debug.marchid   := marchid
 }

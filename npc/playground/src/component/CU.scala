@@ -61,7 +61,11 @@ class CUOutputBundle extends Bundle with HasRegFileParameter {
   val memOp = MemUOpType(); val memEn = Bool() // mem
   val wbSel = WBSel(); val rfWen = Bool() // write back
   val csrOp = CSROpType(); val csrWen = Bool() // csr
-  val exception = CUExceptionType(); val exceptionEn = Bool() // 异常
+
+  // exception
+  val exception = CUExceptionType()
+  val exceptionEn = Bool()
+  val xtval = Bool()
 }
 
 class CUInputBundle extends Bundle with HasCoreParameter {
@@ -96,6 +100,7 @@ class CU extends Module with HasCoreParameter with HasRegFileParameter {
   )
   io.out.exception := MuxCase(DontCare, exceptionMapping)
   io.out.exceptionEn := isEbreak || isEcall || invalidInst
+  io.out.xtval := 0.U
 
   /* ---------- R-type: add rd, rs1, rs2 ---------- */
   private def rInst(op: ALUOpType.Type): Unit /*无返回值*/ = {

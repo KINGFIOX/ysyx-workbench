@@ -40,7 +40,6 @@ static void handle_unaligned_load(Context *c) {
     default:
       printf("unknown load funct3: %d\n", funct3); panic("");
   }
-  printf("addr: %p, value: %08x\n", addr, value);
 
   if (rd != 0) {  // x0 不可写
     c->gpr[rd] = value;
@@ -55,8 +54,6 @@ static void handle_unaligned_store(Context *c) {
 
   uintptr_t addr = c->mtval;
   uintptr_t value = c->gpr[rs2];
-
-  printf("addr: %p, value: %08x\n", addr, value);
 
   switch (funct3) {
     case 0: // SB - store byte

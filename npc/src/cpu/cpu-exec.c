@@ -208,25 +208,6 @@ static void etrace_log(const Decode *s) {
 
 #endif // CONFIG_ETRACE
 
-// ===============================  skip some csr  ===============================
-
-#ifdef CONFIG_DIFFTEST
-
-static void skip_csr_difftest(const Decode *s) {
-  INSTPAT_START();
-  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, {
-    imm &= 0xfff;
-    if (imm == MCYCLE || imm == MCYCLEH) { difftest_skip_ref(); } });
-  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, {
-    imm &= 0xfff;
-    if (imm == MCYCLE || imm == MCYCLEH) { difftest_skip_ref(); } });
-  INSTPAT_END();
-}
-
-#endif // CONFIG_DIFFTEST
-
-// ===============================  skip some csr  ===============================
-
 static void execute(uint64_t n) {
   Decode s;
 
@@ -250,11 +231,6 @@ static void execute(uint64_t n) {
 #ifdef CONFIG_ETRACE
   etrace_log(&s);
 #endif
-
-#ifdef CONFIG_DIFFTEST
-  skip_csr_difftest(&s);
-#endif
-
     g_nr_guest_inst++;
     trace_and_difftest(&s, cpu.pc);
     if (npc_state.state != NPC_RUNNING) break;

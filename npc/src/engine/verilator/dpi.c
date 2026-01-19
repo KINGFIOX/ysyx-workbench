@@ -21,8 +21,10 @@ void pmem_write_dpi(int en, int addr, int strb, int data) {
   }
 }
 
-void exception_dpi(int en, int pc, int mcause, int a0) {
+void exception_dpi(int en, int pc, int mcause, int a0, int tval) {
   if (!en) return;
+  IFDEF(CONFIG_DIFFTEST, ref_difftest_raise_intr(a0, tval));
+  IFDEF(CONFIG_DIFFTEST, difftest_skip_ref());
   switch (mcause) {
     case 2:
       INV((vaddr_t)pc);

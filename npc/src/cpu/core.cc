@@ -166,6 +166,9 @@ static void sync_csr_to_cpu() {
   cpu.csr[MTVEC] = top->io_debug_csr_mtvec;
   cpu.csr[MEPC] = top->io_debug_csr_mepc;
   cpu.csr[MCAUSE] = top->io_debug_csr_mcause;
+  cpu.csr[MTVAL] = top->io_debug_csr_mtval;
+  cpu.csr[MVENDORID] = top->io_debug_csr_mvendorid;
+  cpu.csr[MARCHID] = top->io_debug_csr_marchid;
 }
 
 // extern "C" bool npc_core_step(Decode *s) {

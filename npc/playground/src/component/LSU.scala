@@ -35,7 +35,10 @@ class MEMUInputBundle extends Bundle with HasCoreParameter {
 
 class MEMUOutputBundle extends Bundle with HasCoreParameter {
   val rdata = UInt(XLEN.W)
-  val exception = MemUExceptionType(); val exceptionEn = Bool()
+  // exception
+  val exception = MemUExceptionType()
+  val exceptionEn = Bool()
+  val xtval = UInt(XLEN.W)
 }
 
 /** 符号扩展 */
@@ -250,8 +253,9 @@ class LSU(params: AXI4LiteParams) extends Module with HasCoreParameter {
   private val isReadDone  = (read_state === ReadState.done)
   private val isWriteDone = (write_state === WriteState.done)
 
-  io.out.valid          := isReadDone || isWriteDone
-  io.out.bits.rdata     := Mux(isReadDone, rdata_reg, 0.U)
-  io.out.bits.exception := exception_reg
+  io.out.valid            := isReadDone || isWriteDone
+  io.out.bits.rdata       := Mux(isReadDone, rdata_reg, 0.U)
+  io.out.bits.exception   := exception_reg
   io.out.bits.exceptionEn := exceptionEn_reg
+  io.out.bits.xtval       := addr_reg
 }

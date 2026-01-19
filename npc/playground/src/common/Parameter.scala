@@ -19,6 +19,7 @@ trait HasCSRParameter {
   val MTVEC     = 0x0305
   val MEPC      = 0x0341
   val MCAUSE    = 0x0342
+  val MTVAL     = 0x0343
   val MCYCLE    = 0x0b00
   val MCYCLEH   = 0x0b80
   val MVENDORID = 0x0f11

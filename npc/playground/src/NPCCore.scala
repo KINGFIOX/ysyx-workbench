@@ -118,6 +118,7 @@ class NPCCore(params: AXI4LiteParams) extends Module with HasCoreParameter with 
   private val csr_wop_reg = Reg(CSROpType())
   private val csr_waddr_reg = RegInit(0.U(XLEN.W))
   private val csr_xcuase_reg = RegInit(0.U(XLEN.W))
+  private val csr_xtval_reg = RegInit(0.U(XLEN.W))
 
   /* ========== 辅助信号 ========== */
   private val isMem = cu.io.out.memEn
@@ -151,6 +152,7 @@ class NPCCore(params: AXI4LiteParams) extends Module with HasCoreParameter with 
         when(excpu.io.out.fire) {
           state := State.exception
           csr_xcuase_reg := excpu.io.out.bits.mcause
+          csr_xtval_reg := excpu.io.out.bits.mtval
         } .elsewhen(isMem) {
           state := State.mem_ready_wait
           mem_op_reg := cu.io.out.memOp
@@ -179,6 +181,7 @@ class NPCCore(params: AXI4LiteParams) extends Module with HasCoreParameter with 
         when(excpu.io.out.fire) {
           state := State.exception
           csr_xcuase_reg := excpu.io.out.bits.mcause
+          csr_xtval_reg := excpu.io.out.bits.mtval
         } .otherwise {
           state := State.writeback
           rd_v_reg := lsu.io.out.bits.rdata
@@ -220,6 +223,8 @@ class NPCCore(params: AXI4LiteParams) extends Module with HasCoreParameter with 
   csru.io.commit.xcause_wen := (state === State.exception)
   csru.io.commit.xepc := pc_reg
   csru.io.commit.xepc_wen := (state === State.exception)
+  csru.io.commit.xtval := csr_xtval_reg
+  csru.io.commit.xtval_wen := (state === State.exception)
 
   /* ========== LSU ========== */
   lsu.io.in.valid := (state === State.mem_ready_wait)
@@ -233,11 +238,14 @@ class NPCCore(params: AXI4LiteParams) extends Module with HasCoreParameter with 
   /* ========== EXCU ========== */
   excpu.io.in.bits.ifu := ifu.io.out.bits.exception
   excpu.io.in.bits.ifuEn := ifu.io.out.fire && ifu.io.out.bits.exceptionEn
+  excpu.io.in.bits.ifuXtval := ifu.io.out.bits.xtval
   excpu.io.in.bits.cu := cu.io.out.exception
   excpu.io.in.bits.cuEn := ifu.io.out.fire && cu.io.out.exceptionEn
+  excpu.io.in.bits.cuXtval := cu.io.out.xtval
   excpu.io.in.bits.lsu := lsu.io.out.bits.exception
   excpu.io.in.bits.lsuEn := lsu.io.out.fire && lsu.io.out.bits.exceptionEn
-  excpu.io.in.bits.pc := pc_reg
+  excpu.io.in.bits.lsuXtval := mem_addr_reg
+  excpu.io.in.bits.pc := Mux( state === State.ifu_valid_wait, ifu.io.out.bits.pc, pc_reg )
   excpu.io.in.bits.a0 := rfu.io.out.debug.gpr(10)
   excpu.io.in.valid := (state === State.ifu_valid_wait) || (state === State.mem_valid_wait)
   excpu.io.out.ready := (state === State.ifu_valid_wait) || (state === State.mem_valid_wait)
