@@ -26,13 +26,13 @@
           echo "/* Empty stub for rv32 ilp32 ABI compatibility */" > $out/include/gnu/stubs-ilp32.h
         '';
 
-        # 创建 ccache 包装目录，通过 PATH prepend 方式使用 ccache
-        ccacheWrapper = pkgs.runCommand "ccache-wrapper" { } ''
-          mkdir -p $out/bin
-          for prog in gcc g++ cc c++; do
-            ln -s ${pkgs.ccache}/bin/ccache $out/bin/$prog
-          done
-        '';
+        ## 创建 ccache 包装目录，通过 PATH prepend 方式使用 ccache
+        #ccacheWrapper = pkgs.runCommand "ccache-wrapper" { } ''
+        #  mkdir -p $out/bin
+        #  for prog in gcc g++ cc c++; do
+        #    ln -s ${pkgs.ccache}/bin/ccache $out/bin/$prog
+        #  done
+        #'';
       in
       {
         devShells.default = pkgs.mkShell {
@@ -104,7 +104,7 @@
             python3
             ruff # lsp of python
             bear # 生成 compile_commands.json
-            ccache
+            #ccache
           ];
 
           # 环境变量设置
@@ -118,8 +118,8 @@
             export NPC_HOME="$YSYX_HOME/npc"
             export NVBOARD_HOME="$YSYX_HOME/nvboard"
 
-            # 使用 ccache: 通过 PATH prepend 方式，让 gcc/g++ 调用自动走 ccache
-            export PATH="${ccacheWrapper}/bin:$PATH"
+            ## 使用 ccache: 通过 PATH prepend 方式，让 gcc/g++ 调用自动走 ccache
+            #export PATH="${ccacheWrapper}/bin:$PATH"
 
             # ccache 配置
             export CCACHE_MAXSIZE="2G"
