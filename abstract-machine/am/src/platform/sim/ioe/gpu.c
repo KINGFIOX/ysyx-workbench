@@ -33,9 +33,7 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   volatile uint32_t *dst = fb + screen_w * y + x; // dst 指向显存
   uint32_t *src = pixels;
   for (size_t i = 0; i < h; i++) { // 逐行复制
-    for (size_t j = 0; j < w; j++) {
-      dst[j] = src[j];
-    }
+    for (size_t j = 0; j < w; j++) { dst[j] = src[j]; }
     dst += screen_w;
     src += w;
   }

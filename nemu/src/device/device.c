@@ -36,13 +36,9 @@ void vga_update_screen();
 void device_update() {
   static uint64_t last = 0;
   uint64_t now = get_time();
-  if ( likely( now - last < 1000000 / TIMER_HZ ) ) {
-    return;
-  }
+  if ( likely( now - last < 1000000 / TIMER_HZ ) ) { return; }
   last = now;
-
   IFDEF(CONFIG_HAS_VGA, vga_update_screen());
-
 #ifndef CONFIG_TARGET_AM
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
