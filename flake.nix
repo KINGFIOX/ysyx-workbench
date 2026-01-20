@@ -66,6 +66,7 @@
             readline
             ncurses
             libllvm
+            libelf # gelf.h for ftrace
             dtc # spike
 
             # ========================

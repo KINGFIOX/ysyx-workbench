@@ -1,15 +1,17 @@
+/* https://home.cs.colorado.edu/~main/cs1300/doc/gnu/ld_3.html */
+
 ENTRY(_start)
 PHDRS { text PT_LOAD; data PT_LOAD; }
 
 SECTIONS {
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
   . = _pmem_start + _entry_offset;
-  .text : { /* .text 表示 section */
+  .text : {
     *(entry)
     *(.text*)
-  } : text /* 把 .text 归属到一个名为 text 的 program header 中 */
+  } : text
   etext = .;
-  _etext = .; /* _etext, _ 表示硬编码 */
+  _etext = .;
   .rodata : {
     *(.rodata*)
   }
