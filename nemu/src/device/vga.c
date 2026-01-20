@@ -32,6 +32,8 @@ static uint32_t screen_size() {
 }
 
 static void *vmem = NULL;
+// [0]: { screen_width, screen_height }
+// [1]: sync flag
 static uint32_t *vgactl_port_base = NULL;
 
 #ifdef CONFIG_VGA_SHOW_SCREEN

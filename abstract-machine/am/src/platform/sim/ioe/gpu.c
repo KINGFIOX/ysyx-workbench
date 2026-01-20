@@ -25,9 +25,9 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   int x = ctl->x, y = ctl->y;  // 绘图的起点坐标 (x, y)
   int w = ctl->w, h = ctl->h;  // 绘图的宽高 (w, h)
-  if (!ctl->sync && (w == 0 || h == 0)) return; // 啥也没干, 直接返回
+  if (!ctl->sync && (w == 0 || h == 0)) { return; } // 啥也没干, 直接返回
   uint32_t *pixels = ctl->pixels; // 绘图的数据
-  if (pixels == NULL && !(w == 0 && h == 0)) return; // 非法数据, 让你绘制图像, 但是没告诉你绘制啥
+  if (pixels == NULL && !(w == 0 && h == 0)) { return; } // 非法数据, 让你绘制图像, 但是没告诉你绘制啥
   uint32_t *fb = (uint32_t *)(uintptr_t)FB_ADDR; // 显存地址
   uint32_t screen_w = inl(VGACTL_ADDR) >> 16; // 屏幕的宽度
   volatile uint32_t *dst = fb + screen_w * y + x; // dst 指向显存
