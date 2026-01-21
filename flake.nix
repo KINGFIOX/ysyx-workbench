@@ -91,6 +91,7 @@
             SDL2_image
             SDL2_ttf
             SDL2_mixer # 可能需要音频支持
+            ffmpeg
 
             # ========================
             # RISC-V 交叉编译工具链

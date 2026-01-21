@@ -14,6 +14,11 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
 
   private val counter = RegInit(0.U(8.W))
 
+  private def delay(n: Int) : UInt = {
+    // LFSR(n)
+    1.U
+  }
+
   // ========== 读操作状态机 ==========
   object ReadState extends ChiselEnum {
     val idle, reading, latch, done = Value
@@ -41,7 +46,7 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
       when(io.axi.ar.fire) {
         read_state := ReadState.reading
         read_addr_reg := io.axi.ar.bits.addr
-        counter := LFSR(4)
+        counter := delay(4)
       }
     }
     is(ReadState.reading) {
@@ -117,7 +122,7 @@ class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParam
           write_data_reg := io.axi.w.bits.data
           write_strb_reg := io.axi.w.bits.strb
         }
-        counter := LFSR(4)
+        counter := delay(4)
         write_state := WriteState.writing
         aw_received := false.B
         w_received  := false.B

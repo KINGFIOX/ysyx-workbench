@@ -142,6 +142,8 @@ enum {
 #define immB() do { *imm = SEXT((BITS(i, 31, 31) << 12) | (BITS(i, 7, 7) << 11) | (BITS(i, 30, 25) << 5)  | (BITS(i, 11, 8) << 1), 13); } while(0)
 #define immJ() do { *imm = SEXT((BITS(i, 31, 31) << 20) | (BITS(i, 19, 12) << 12) | (BITS(i, 20, 20) << 11) | (BITS(i, 30, 21) << 1), 21); } while(0)
 
+#if defined(CONFIG_FTRACE) || defined(CONFIG_ETRACE)
+
 static void decode_operand(const Decode *s, int *rd, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst;
   *rd     = BITS(i, 11, 7);
@@ -156,6 +158,8 @@ static void decode_operand(const Decode *s, int *rd, word_t *src1, word_t *src2,
     default: panic("unsupported type = %d", type);
   }
 }
+
+#endif
 
 #define INSTPAT_INST(s) ((s)->isa.inst)
 #define INSTPAT_MATCH(s, name, type, ... /* execute body */ ) { \
