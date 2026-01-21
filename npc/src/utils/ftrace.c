@@ -139,12 +139,10 @@ static void load_symtab(Elf *e, size_t stridx, Elf_Scn *scn) {
   }
 }
 
-static char *elf_file = NULL;
-static size_t len = 0;
 
 void init_ftrace(const char *img_file) {
-  len = strlen(img_file);
-  elf_file = strndup(img_file, len);
+  size_t len = strlen(img_file);
+  char * elf_file = strndup(img_file, len);
   if (elf_file == NULL) {
     Log("ftrace: strdup failed");
     return;
@@ -171,8 +169,7 @@ void init_ftrace(const char *img_file) {
   }
 
   // section
-  for (Elf_Scn *scn = elf_getscn(e, 0); scn != NULL;
-       scn = elf_nextscn(e, scn)) {
+  for (Elf_Scn *scn = elf_getscn(e, 0); scn != NULL; scn = elf_nextscn(e, scn)) {
     GElf_Shdr shdr;
     gelf_getshdr(scn, &shdr); // retrieve section header
     if (shdr.sh_type == SHT_SYMTAB || shdr.sh_type == SHT_DYNSYM) {
@@ -184,8 +181,7 @@ void init_ftrace(const char *img_file) {
   close(fd);
 
   if (func_cnt) {
-    qsort(funcs, func_cnt, sizeof(FuncSym) /*sizeof element*/,
-          cmp_func); // 按照 vaddr_start 排序
+    qsort(funcs, func_cnt, sizeof(FuncSym) /*sizeof element*/, cmp_func); // 按照 vaddr_start 排序
     Log("ftrace: loaded %zu functions from %s", func_cnt, elf_file);
   } else {
     Log("ftrace: no functions found in %s", elf_file);

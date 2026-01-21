@@ -63,8 +63,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 #ifdef CONFIG_ITRACE
-void gen_logbuf(char *logbuf, size_t size, vaddr_t pc, vaddr_t snpc,
-                const ISADecodeInfo *isa) {
+void gen_logbuf(char *logbuf, size_t size, vaddr_t pc, vaddr_t snpc, const ISADecodeInfo *isa) {
   // 效果:
   // 0x80000000: 00 00 02 97 auipc   t0, 0
   char *p = logbuf;

@@ -68,11 +68,12 @@ class AXI4LiteSlaveIO(p: AXI4LiteParams) extends Bundle {
 case class AXI4LiteXBarParams(
   axi: AXI4LiteParams = AXI4LiteParams(),
   numMasters: Int = 1, // default
-  numSlaves: Int = 1,
+  // numSlaves: Int = 1,
   // Address mapping: Seq of (baseAddr, size) for each slave
   addrMap: Seq[(BigInt, BigInt)] = Seq((BigInt(0), BigInt(0x10000)))
 ) {
-  require(addrMap.length == numSlaves, "Address map must have entry for each slave")
+  // require(addrMap.length == numSlaves, "Address map must have entry for each slave")
+  val numSlaves = addrMap.size
   val slaveIdW  = log2Ceil(numSlaves max 2)
   val masterIdW = log2Ceil(numMasters max 2)
 }

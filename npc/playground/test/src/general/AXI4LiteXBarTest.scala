@@ -22,7 +22,6 @@ class AXI4LiteXBarTest extends AnyFlatSpec with Matchers {
   val twoMasterTwoSlaveParams = AXI4LiteXBarParams(
     axi = defaultAxiParams,
     numMasters = 2,
-    numSlaves = 2,
     addrMap = Seq(
       (BigInt(0x00000000L), BigInt(0x10000)),  // Slave 0: 0x0000_0000 - 0x0000_FFFF
       (BigInt(0x00010000L), BigInt(0x10000))   // Slave 1: 0x0001_0000 - 0x0001_FFFF
@@ -33,7 +32,6 @@ class AXI4LiteXBarTest extends AnyFlatSpec with Matchers {
   val oneMasterTwoSlaveParams = AXI4LiteXBarParams(
     axi = defaultAxiParams,
     numMasters = 1,
-    numSlaves = 2,
     addrMap = Seq(
       (BigInt(0x00000000L), BigInt(0x10000)),
       (BigInt(0x00010000L), BigInt(0x10000))
@@ -44,7 +42,6 @@ class AXI4LiteXBarTest extends AnyFlatSpec with Matchers {
   val oneMasterOneSlaveParams = AXI4LiteXBarParams(
     axi = defaultAxiParams,
     numMasters = 1,
-    numSlaves = 1,
     addrMap = Seq(
       (BigInt(0x00000000L), BigInt(0x10000))
     )
@@ -774,7 +771,6 @@ class AXI4LiteXBarStressTest extends AnyFlatSpec with Matchers {
   val stressParams = AXI4LiteXBarParams(
     axi = AXI4LiteParams(addrWidth = 32, dataWidth = 32),
     numMasters = 4,
-    numSlaves = 4,
     addrMap = Seq(
       (BigInt(0x00000000L), BigInt(0x10000)),
       (BigInt(0x00010000L), BigInt(0x10000)),

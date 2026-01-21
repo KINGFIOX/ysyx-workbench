@@ -16,7 +16,6 @@ class DebugBundle extends Bundle with HasCoreParameter with HasRegFileParameter 
   val dnpc  = UInt(XLEN.W)
   val inst  = UInt(InstLen.W)
   val gpr   = Vec(NRReg, UInt(XLEN.W))
-  // CSR 提交信息
   val csr   = new CSRUDebugBundle
 }
 
@@ -33,7 +32,7 @@ class NPCSoC(params: AXI4LiteParams) extends Module {
   private val xbarParams = AXI4LiteXBarParams(
     axi = params,
     numMasters = 2, // IFU (icache) 和 LSU (dcache) 作为 master
-    numSlaves = 4, // error slave + pmem slave
+    // numSlaves = 4, // error slave + pmem slave
     addrMap = Seq(
       (BigInt(0), BigInt(0)),                      // slave 0: error (空范围，永不匹配，作为默认)
       (BigInt(0x8000_0000L), BigInt(0x1000_0000L)), // slave 1: pmem

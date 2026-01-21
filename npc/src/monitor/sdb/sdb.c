@@ -159,14 +159,11 @@ static struct {
   const char *description;
   int (*handler)(char *);
 } cmd_table[NR_CMD] = {
-    [CMD_HELP] = {"help", "Display information about all supported commands",
-                  cmd_help},
+    [CMD_HELP] = {"help", "Display information about all supported commands", cmd_help},
     [CMD_C] = {"c", "Continue the execution of the program", cmd_c},
     [CMD_Q] = {"q", "Exit NPC", cmd_q},
     [CMD_SI] = {"si", "Step one instruction", cmd_si}, // si [N]
-    [CMD_INFO] = {"info",
-                  "Display information about the current state of the program",
-                  cmd_info},                         // info r, info w
+    [CMD_INFO] = {"info", "Display information about the current state of the program", cmd_info},                         // info r, info w
     [CMD_X] = {"x", "View memory", cmd_x},           // x N EXPR
     [CMD_P] = {"p", "print expression", cmd_p},      // p EXPR
     [CMD_W] = {"w", "watchpoint expression", cmd_w}, // w EXPR
@@ -197,16 +194,14 @@ static int cmd_help(char *args) {
 
 static int cmd_info(char *args) {
   if (args == NULL) {
-    printf("%s - %s\n", cmd_table[CMD_INFO].name,
-           cmd_table[CMD_INFO].description);
+    printf("%s - %s\n", cmd_table[CMD_INFO].name, cmd_table[CMD_INFO].description);
   } else if (0 == strcmp(args, "r")) {
     isa_reg_display();
   } else if (0 == strcmp(args, "w")) {
     list_watchpoints();
   } else {
     printf("Unknown subcommand '%s'\n", args);
-    printf("%s - %s\n", cmd_table[CMD_INFO].name,
-           cmd_table[CMD_INFO].description);
+    printf("%s - %s\n", cmd_table[CMD_INFO].name, cmd_table[CMD_INFO].description);
   }
   return 0;
 }

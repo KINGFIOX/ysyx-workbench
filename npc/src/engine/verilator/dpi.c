@@ -3,7 +3,6 @@
 #include <cpu/cpu.h>
 
 
-// CIRCT DPI ABI: 返回值通过 output 指针参数传递
 void pmem_read_dpi(int en, int addr, int len, int* data) {
   if (!en) {
     *data = 0;
@@ -26,12 +25,8 @@ void exception_dpi(int en, int pc, int mcause, int a0, int tval) {
   IFDEF(CONFIG_DIFFTEST, ref_difftest_raise_intr(a0, tval));
   IFDEF(CONFIG_DIFFTEST, difftest_skip_ref());
   switch (mcause) {
-    case 2:
-      INV((vaddr_t)pc);
-      break;
-    default:
-      NPCTRAP((vaddr_t)pc, a0);
-      break;
+    case 2: INV((vaddr_t)pc); break;
+    default: NPCTRAP((vaddr_t)pc, a0); break;
   }
 }
 

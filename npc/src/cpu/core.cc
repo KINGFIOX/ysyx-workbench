@@ -58,9 +58,7 @@ static void tick() {
 static void reset(int cycles = 5) {
   top->reset = 1;
   top->io_step = 0; // 拉低 step 信号
-  for (int i = 0; i < cycles; i++) {
-    tick();
-  }
+  for (int i = 0; i < cycles; i++) { tick(); }
   top->reset = 0;
 }
 
@@ -73,7 +71,7 @@ extern "C" bool npc_core_init(int argc, char *argv[]) {
   top = new VNPCSoC(ctx);
 
 // init trace
-#if defined(CONFIG_VERILATOR_TRACE)
+#ifdef CONFIG_VERILATOR_TRACE
   Verilated::traceEverOn(true);
   tfp = new VerilatedVcdC;
   top->trace(tfp, 99);  // 99 levels: 追踪所有层级的信号
