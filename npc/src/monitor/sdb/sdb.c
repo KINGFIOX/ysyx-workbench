@@ -23,8 +23,6 @@
 
 static int is_batch_mode = false;
 
-void init_wp_pool();
-
 /* We use the `readline' library to provide more flexibility to read from stdin.
  */
 static char *rl_gets() {
@@ -268,7 +266,7 @@ void sdb_mainloop() {
           strncpy(last_cmd, cmd, sizeof(last_cmd) - 1);
           last_cmd[sizeof(last_cmd) - 1] = '\0';
         }
-        
+
         if (cmd_table[i].handler(args) < 0) {
           return;
         }
@@ -283,6 +281,9 @@ void sdb_mainloop() {
 }
 
 void init_sdb() {
+#ifdef CONFIG_WATCHPOINT
   /* Initialize the watchpoint pool. */
+  extern void init_wp_pool();
   init_wp_pool();
+#endif
 }

@@ -19,11 +19,20 @@
 #include <common.h>
 
 word_t expr_eval(const char *expr, bool *success);
+
+#ifdef CONFIG_WATCHPOINT
 void init_wp_pool(void);
 int add_watchpoint(const char *expr);
 bool delete_watchpoint(int no);
 void list_watchpoints(void);
 bool check_watchpoints(void);
+#else
+static inline void init_wp_pool(void) {}
+static inline int add_watchpoint(const char *expr) { return 0; }
+static inline bool delete_watchpoint(int no) { return true; }
+static inline void list_watchpoints(void) {}
+static inline bool check_watchpoints(void) { return false; }
+#endif
 
 extern const char * parse_error_msg;
 

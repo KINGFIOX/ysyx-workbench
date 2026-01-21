@@ -25,8 +25,7 @@
 
 
 typedef struct {
-  vaddr_t start;
-  vaddr_t end;
+  vaddr_t start, end;
   char name[64];
 } FuncSym;
 
@@ -107,58 +106,46 @@ static const FuncSym *find_func(vaddr_t addr) {
 
 /// @ref https://ysyx.oscc.cc/slides/2306/14.html#/elf文件格式
 /// @ref .symtab 和 .dynsym 是一个 section, 用于存储符号表
+/// @ref https://atakua.org/old-wp/wp-content/uploads/2015/03/libelf-by-example-20100112.pdf
 static void load_symtab(Elf *e, size_t stridx, Elf_Scn *scn) {
   GElf_Shdr shdr; // section header
   gelf_getshdr(scn, &shdr);
-  Elf_Data *data = elf_getdata(scn, NULL); // 获取符号表
+  Elf_Data *data = elf_getdata(scn, NULL);
   if (data == NULL) return;
   size_t count = shdr.sh_size / shdr.sh_entsize;
-  for (size_t i = 0; i < count; i++) { // 遍历所有的表项
-    GElf_Sym sym; // 符号
-    gelf_getsym(data, (int)i, &sym); // 获取表项
-    if (GELF_ST_TYPE(sym.st_info) != STT_FUNC) continue; // 只处理函数
-    if (sym.st_value == 0) continue; // 跳过空符号
+  for (size_t i = 0; i < count; i++) {
+    GElf_Sym sym;
+    gelf_getsym(data, (int)i, &sym);
+    if (GELF_ST_TYPE(sym.st_info) != STT_FUNC) { continue; }
+    if (sym.st_value == 0) { continue; }
     const char *name = elf_strptr(e, stridx, sym.st_name);
-    if (name == NULL || name[0] == '\0') continue; // 表项空的
+    if (name == NULL || name[0] == '\0') { continue; }
     add_func((vaddr_t)sym.st_value, (vaddr_t)sym.st_size, name);
   }
 }
 
-static char * elf_file = NULL;
-static size_t len = 0;
-
 void init_ftrace(const char *img_file) {
-  len = strlen(img_file);
-  elf_file = strndup(img_file, len);
+  size_t len = strlen(img_file);
+  char * elf_file = strndup(img_file, len);
   if (elf_file == NULL) {
     Log("ftrace: strdup failed");
     return;
   }
-
-  // .bin -> .elf
-  elf_file[len] = '\0';
+  elf_file[len] = '\0'; // .bin -> .elf
   elf_file[len - 1] = 'f';
   elf_file[len - 2] = 'l';
   elf_file[len - 3] = 'e';
 
   int fd = open(elf_file, O_RDONLY);
-  if (fd < 0) {
-    panic("ftrace: open %s failed: %s", elf_file, strerror(errno));
-  }
-
-  if (elf_version(EV_CURRENT) == EV_NONE) {
-    panic("ELF library initialization failed");
-  }
-
-  Elf *e = elf_begin(fd, ELF_C_READ, NULL); // 打开 elf 文件
-  if (e == NULL) {
-    panic("ftrace: elf_begin failed: %s", elf_errmsg(-1));
-  }
+  if (fd < 0) { panic("ftrace: open %s failed: %s", elf_file, strerror(errno)); }
+  if (elf_version(EV_CURRENT) == EV_NONE) { panic("ELF library initialization failed: %s", elf_errmsg(-1)); }
+  Elf *e = elf_begin(fd, ELF_C_READ, NULL);
+  if (e == NULL) { panic("ftrace: elf_begin failed: %s", elf_errmsg(-1)); }
 
   // section
-  for (Elf_Scn *scn = elf_getscn(e, 0); scn != NULL; scn = elf_nextscn(e, scn)) {
+  for (Elf_Scn *scn = elf_getscn(e, 0); scn; scn = elf_nextscn(e, scn)) {
     GElf_Shdr shdr;
-    gelf_getshdr(scn, &shdr); // retrieve section header
+    if ( gelf_getshdr(scn, &shdr) != &shdr ) { panic("ftrace: gelf_getshdr failed: %s", elf_errmsg(-1)); }
     if (shdr.sh_type == SHT_SYMTAB || shdr.sh_type == SHT_DYNSYM) {
       load_symtab(e, shdr.sh_link, scn);
     }
@@ -166,6 +153,7 @@ void init_ftrace(const char *img_file) {
 
   elf_end(e);
   close(fd);
+  free(elf_file);
 
   if (func_cnt) {
     qsort(funcs, func_cnt, sizeof(FuncSym) /*sizeof element*/, cmp_func); // 按照 vaddr_start 排序
@@ -214,9 +202,9 @@ void ftrace_dump(void) {
     memset(spaces, ' ', pad);
     spaces[pad] = '\0';
     if (e->type == 'C') {
-      _Log(FMT_WORD ": %scall [%s@" FMT_WORD "]\n", e->pc, spaces, e->name, e->target);
+      _Log(FMT_WORD ": %scall [%s@" FMT_WORD "]\n", e->pc, spaces, e->name, e->target); // call
     } else {
-      _Log(FMT_WORD ": %sret  [%s]\n", e->pc, spaces, e->name);
+      _Log(FMT_WORD ": %sret  [%s]\n", e->pc, spaces, e->name); // ret
     }
   }
 }

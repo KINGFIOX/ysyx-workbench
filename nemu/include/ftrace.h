@@ -34,4 +34,3 @@ static inline void ftrace_dump(void) {}
 #endif
 
 #endif
-

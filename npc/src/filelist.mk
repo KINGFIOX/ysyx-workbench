@@ -13,8 +13,11 @@
 # See the Mulan PSL v2 for more details.
 #**************************************************************************************/
 
-DIRS-y += src/cpu src/monitor src/utils
-DIRS-y += src/memory
+DIRS-y += src/cpu src/monitor src/utils src/memory
+
+ifeq ($(CONFIG_WATCHPOINT),)
+SRCS-BLACKLIST-y += src/monitor/sdb/watchpoint.c
+endif
 
 CXXSRC += src/npc-main.cc
 CXXSRC += src/cpu/core.cc
