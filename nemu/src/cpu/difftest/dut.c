@@ -106,7 +106,7 @@ bool difftest_step(vaddr_t pc, vaddr_t npc) {
   CPU_state ref_r;
 
 // ========== start of 校准 ====================================================
-// riscv32 没有需要 “校准” 的指令, 所以这部分对于 riscv32 没用 
+// riscv32 没有需要 “校准” 的指令, 所以这部分对于 riscv32 没用
   if (skip_dut_nr_inst > 0) {
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     if (ref_r.pc == npc) {
@@ -123,7 +123,7 @@ bool difftest_step(vaddr_t pc, vaddr_t npc) {
   if (is_skip_ref) { // mmio 会跳过检查
     // to skip the checking of an instruction, just copy the reg state to reference design
     ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-    is_skip_ref = false; // 仅跳过一条指令的检查 
+    is_skip_ref = false; // 仅跳过一条指令的检查
     return true; // 因为这里直接将 spike 的状态复制到了 nemu, 所以一定是一致的
   }
 

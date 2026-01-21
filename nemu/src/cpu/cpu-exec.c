@@ -72,19 +72,15 @@ bool gen_logbuf(char *logbuf, size_t size, vaddr_t pc, vaddr_t snpc,
   p += snprintf(p, size, FMT_WORD ":", pc);
   int ilen = snpc - pc;
   uint8_t *inst = (uint8_t *)&isa->inst;
-  for (int i = ilen - 1; i >= 0; i--) {
-    p += snprintf(p, 4, " %02x", inst[i]);
-  }
+  for (int i = ilen - 1; i >= 0; i--) { p += snprintf(p, 4, " %02x", inst[i]); }
   int ilen_max = 4;
   int space_len = ilen_max - ilen;
-  if (space_len < 0)
-    space_len = 0;
+  if (space_len < 0) { space_len = 0; }
   space_len = space_len * 3 + 1;
   memset(p, ' ', space_len); // 打印一些空格, 用来对齐的
   p += space_len;
 
-  bool ret =
-      disassemble(p, size - (p - logbuf), pc, (uint8_t *)&isa->inst, ilen);
+  bool ret = disassemble(p, size - (p - logbuf), pc, (uint8_t *)&isa->inst, ilen);
   if (!ret) {
     logbuf[0] = '\0';
     return false;
@@ -116,8 +112,7 @@ static void dump_iringbuf(void) {
   RINGBUF_FOREACH(g_iringbuf, CONFIG_IRINGBUF_SIZE, idx, pos) {
     const ItraceItem *it = RINGBUF_GET(g_iringbuf, pos);
     bool ret = gen_logbuf(logbuf, sizeof(logbuf), it->pc, it->snpc, &it->isa);
-    if (!ret)
-      continue; // 理论不会失败
+    if (!ret) { continue; } // 理论上不会失败
 
     if (RINGBUF_IS_LAST(g_iringbuf, idx)) {
       LogInst("--> %s", logbuf);
@@ -142,12 +137,9 @@ static void execute(uint64_t n) {
     exec_once(&s, cpu.pc);
 
 #ifdef CONFIG_ITRACE
-    // 生成日志(完整)
     bool ret = gen_logbuf(s.logbuf, sizeof(s.logbuf), s.pc, s.snpc, &s.isa);
     Assert(ret, "disassemble failed"); // 不可能失败
-    // 最近的 CONFIG_IRINGBUF_SIZE 条指令
-    RINGBUF_PUSH(g_iringbuf, CONFIG_IRINGBUF_SIZE,
-                 ((ItraceItem){.pc = s.pc, .snpc = s.snpc, .isa = s.isa}));
+    RINGBUF_PUSH(g_iringbuf, CONFIG_IRINGBUF_SIZE, ((ItraceItem){.pc = s.pc, .snpc = s.snpc, .isa = s.isa}));
 #endif
 
     g_nr_guest_inst++;
