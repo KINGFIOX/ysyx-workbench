@@ -18,5 +18,6 @@
 # Nix Flake
 !flake.nix
 !flake.lock
+!overlay.nix
 !.envrc
 .direnv/

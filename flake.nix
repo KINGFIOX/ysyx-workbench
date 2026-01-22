@@ -18,6 +18,7 @@
         pkgs = import nixpkgs {
           inherit system;
           config.allowUnfree = true;
+          overlays = [ (import ./overlay.nix) ];
         };
 
         # 创建空的 stubs-ilp32.h 来修复 rv32 编译问题
@@ -76,7 +77,7 @@
             scala_2_13
             circt # 包含 firtool，Chisel 生成 Verilog 需要
             metals # mill 不会自动下载
-            mill # 1.0.6
+            mill_0_12_4 # 锁定到 0.12.4 版本
 
             # ========================
             # Verilog/仿真工具
