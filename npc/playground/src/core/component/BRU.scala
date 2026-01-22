@@ -1,8 +1,8 @@
-package component
+package core.component
 
 import chisel3._
 import chisel3.util._
-import common.HasCoreParameter
+import core.common.HasCoreParameter
 
 object BRUOpType extends ChiselEnum {
   val bru_X, bru_BLT, bru_BLTU, bru_BGE, bru_BGEU, bru_BEQ, bru_BNE = Value

@@ -2,14 +2,13 @@
   *   CU - 控制单元 (Control Unit) 根据指令生成各个模块的控制信号
   */
 
-package component
+package core.component
 
 import chisel3._
 import chisel3.util._
-import common.HasCoreParameter
-import common.HasRegFileParameter
-import common.Instructions._
-import component.ALUOpType.alu_X
+import core.common.HasCoreParameter
+import core.common.HasRegFileParameter
+import core.common.Instructions._
 
 /** ALU 操作数1 选择 */
 object ALUOp1Sel extends ChiselEnum {

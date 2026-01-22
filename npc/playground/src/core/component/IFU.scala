@@ -1,11 +1,11 @@
-package component
+package core.component
 
 import chisel3._
 import chisel3.util._
-import common.HasCoreParameter
-import general.AXI4LiteMasterIO
-import general.AXI4LiteParams
-import general.AXI4LiteResp
+import core.common.HasCoreParameter
+import core.general.AXI4LiteMasterIO
+import core.general.AXI4LiteParams
+import core.general.AXI4LiteResp
 
 class IFUOutputBundle extends Bundle with HasCoreParameter {
   // decode and execute

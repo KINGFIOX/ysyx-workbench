@@ -1,9 +1,9 @@
-package mem
+package core.mem
 
 import chisel3._
 import chisel3.util._
-import general.{AXI4LiteSlaveIO, AXI4LiteParams, AXI4LiteResp}
-import dpi.DifftestSkipRef
+import core.general.{AXI4LiteSlaveIO, AXI4LiteParams, AXI4LiteResp}
+import core.dpi.DifftestSkipRef
 
 
 class AXI4LiteCLINTSlave(params: AXI4LiteParams) extends Module {

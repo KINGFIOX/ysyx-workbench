@@ -1,11 +1,11 @@
-package mem
+package core.mem
 
 import chisel3._
 import chisel3.util._
 import chisel3.util.random.LFSR
-import common.HasCoreParameter
-import general.{AXI4LiteSlaveIO, AXI4LiteParams, AXI4LiteResp}
-import dpi.{PmemRead, PmemWrite}
+import core.common.HasCoreParameter
+import core.general.{AXI4LiteSlaveIO, AXI4LiteParams, AXI4LiteResp}
+import core.dpi.{PmemRead, PmemWrite}
 
 class AXI4LitePmemSlave(params: AXI4LiteParams) extends Module with HasCoreParameter {
   val io = IO(new Bundle {

@@ -1,11 +1,11 @@
-package component
+package core.component
 
 import chisel3._
 import chisel3.util._
-import common.HasCoreParameter
-import general.AXI4LiteMasterIO
-import general.AXI4LiteParams
-import general.AXI4LiteResp
+import core.common.HasCoreParameter
+import core.general.AXI4LiteMasterIO
+import core.general.AXI4LiteParams
+import core.general.AXI4LiteResp
 
 object MemUOpType extends ChiselEnum {
   val mem_LB, mem_LH, mem_LW, mem_LBU, mem_LHU, mem_SB, mem_SH, mem_SW = Value

@@ -1,8 +1,8 @@
-package mem
+package core.mem
 
 import chisel3._
 import chisel3.util._
-import general.{AXI4LiteSlaveIO, AXI4LiteParams, AXI4LiteResp}
+import core.general.{AXI4LiteSlaveIO, AXI4LiteParams, AXI4LiteResp}
 
 class AXI4LiteErrorSlave(params: AXI4LiteParams) extends Module {
   val io = IO(new Bundle {

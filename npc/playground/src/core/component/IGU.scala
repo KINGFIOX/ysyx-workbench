@@ -2,11 +2,11 @@
   *   ExtU - 立即数扩展单元
   */
 
-package component
+package core.component
 
 import chisel3._
 import chisel3.util._
-import common.HasCoreParameter
+import core.common.HasCoreParameter
 
 /** 立即数类型 */
 object ImmType extends ChiselEnum {

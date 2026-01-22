@@ -1,9 +1,9 @@
-package component
+package core.component
 
 import chisel3._
 import chisel3.util._
-import common.HasCoreParameter
-import common.HasRegFileParameter
+import core.common.HasCoreParameter
+import core.common.HasRegFileParameter
 
 class RFUOutputBundle extends Bundle with HasCoreParameter with HasRegFileParameter {
   val rs1_v  = UInt(XLEN.W)

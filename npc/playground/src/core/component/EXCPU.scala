@@ -1,9 +1,9 @@
-package component
+package core.component
 
 import chisel3._
 import chisel3.util._
-import common.HasCoreParameter
-import dpi.ExceptionDpi
+import core.common.HasCoreParameter
+import core.dpi.ExceptionDpi
 
 class EXCPUOutputBundle extends Bundle with HasCoreParameter {
   val mcause = UInt(XLEN.W)

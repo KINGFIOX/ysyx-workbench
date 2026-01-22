@@ -1,10 +1,10 @@
-package component
+package core.component
 
 import chisel3._
 import chisel3.util._
-import common.HasCoreParameter
-import common.HasRegFileParameter
-import common.HasCSRParameter
+import core.common.HasCoreParameter
+import core.common.HasRegFileParameter
+import core.common.HasCSRParameter
 
 // 指令执行完成、指令发生了异常, 需要 commit(交付)
 class CSRCommitIO extends Bundle with HasCoreParameter {

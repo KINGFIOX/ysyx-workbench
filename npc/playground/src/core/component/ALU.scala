@@ -2,12 +2,12 @@
   *   ALU - 算术逻辑单元
   */
 
-package component
+package core.component
 
 import chisel3._
 import chisel3.util._
 
-import common.HasCoreParameter
+import core.common.HasCoreParameter
 
 object ALUOpType extends ChiselEnum {
   val alu_X, alu_ADD, alu_SUB, alu_AND, alu_OR, alu_XOR, alu_SLL, alu_SRL, alu_SRA, alu_SLT, alu_SLTU = Value
