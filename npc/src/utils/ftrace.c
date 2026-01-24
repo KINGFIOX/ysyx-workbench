@@ -186,6 +186,8 @@ void init_ftrace(const char *img_file) {
   } else {
     Log("ftrace: no functions found in %s", elf_file);
   }
+
+  free(elf_file);
 }
 
 void ftrace_call(vaddr_t pc, vaddr_t target) {

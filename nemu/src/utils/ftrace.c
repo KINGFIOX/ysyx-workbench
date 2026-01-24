@@ -153,7 +153,6 @@ void init_ftrace(const char *img_file) {
 
   elf_end(e);
   close(fd);
-  free(elf_file);
 
   if (func_cnt) {
     qsort(funcs, func_cnt, sizeof(FuncSym) /*sizeof element*/, cmp_func); // 按照 vaddr_start 排序
@@ -161,6 +160,8 @@ void init_ftrace(const char *img_file) {
   } else {
     Log("ftrace: no functions found in %s", elf_file);
   }
+
+  free(elf_file);
 }
 
 void ftrace_call(vaddr_t pc, vaddr_t target) {
