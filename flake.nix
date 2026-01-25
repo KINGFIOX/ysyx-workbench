@@ -3,6 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # 旧版 nixpkgs，用于获取已移除的 gcc11
+    nixpkgs-old.url = "github:NixOS/nixpkgs/nixos-23.11";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -10,11 +12,17 @@
     {
       self,
       nixpkgs,
+      nixpkgs-old,
       flake-utils,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
+        # 从旧版 nixpkgs 获取 gcc11
+        pkgsOld = import nixpkgs-old {
+          inherit system;
+        };
+
         pkgs = import nixpkgs {
           inherit system;
           config.allowUnfree = true;
@@ -51,12 +59,12 @@
             automake
 
             # ========================
-            # C/C++ 工具链
+            # C/C++ 工具链 (从旧版 nixpkgs 获取)
             # ========================
-            gcc
+            pkgsOld.gcc11 # GCC 11.4
+            pkgsOld.clang-tools_12 # clangd, clang-format 等 (LLVM 12)
             gdb
             lldb
-            clang-tools # clangd, clang-format 等
             bear
 
             # ========================
@@ -66,7 +74,7 @@
             bison
             readline
             ncurses
-            libllvm
+            pkgsOld.llvmPackages_12.libllvm # LLVM 12
             libelf # gelf.h for ftrace
             dtc # spike
 
