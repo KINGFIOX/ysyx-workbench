@@ -54,11 +54,13 @@ $(MCONF):
 $(FIXDEP):
 	$(Q)$(MAKE) $(silent) -C $(FIXDEP_PATH)
 
-# conf --syncconfig 生成配置文件到 include/config/auto.conf, 用于后续的编译
+# mconf Kconfig 启动图形化配置界面
+# conf -s --syncconfig Kconfig 生成配置文件到 include/config/auto.conf, 用于后续的编译
 menuconfig: $(MCONF) $(CONF) $(FIXDEP)
 	$(Q)$(MCONF) $(Kconfig)
 	$(Q)$(CONF) $(silent) --syncconfig $(Kconfig)
 
+# conf -s --savedefconfig=configs/
 savedefconfig: $(CONF)
 	$(Q)$< $(silent) --$@=configs/defconfig $(Kconfig)
 

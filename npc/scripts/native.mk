@@ -78,8 +78,10 @@ CFLAGS_BUILD += $(if $(CONFIG_CC_LTO),-flto,) # LDFLAGS
 CFLAGS_BUILD += $(if $(CONFIG_CC_DEBUG),-Og -ggdb3,)
 # LDFLAGS 会链接, 如果开了地址安全检查
 CFLAGS_BUILD += $(if $(CONFIG_CC_ASAN),-fsanitize=address,)
+# Disable PIE for NixOS compatibility (绝对地址重定位需要)
+CFLAGS_BUILD += -fno-pie
 CFLAGS += $(CFLAGS_BUILD)
-LDFLAGS += $(CFLAGS_BUILD)
+LDFLAGS += $(CFLAGS_BUILD) -no-pie
 
 # =============================== ITRACE ===============================
 

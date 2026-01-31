@@ -4,7 +4,7 @@ import mill.scalalib.scalafmt.ScalafmtModule
 import mill.scalalib._
 
 object playground extends ScalaModule with ScalafmtModule { m =>
-  override def scalaVersion = "2.13.16"
+  override def scalaVersion = "2.13.18"
 
   override def scalacOptions = Seq(
     "-language:reflectiveCalls",

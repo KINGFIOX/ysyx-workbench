@@ -96,10 +96,12 @@
             # ========================
             # NVBoard / 图形界面依赖
             # ========================
-            SDL2
-            SDL2_image
-            SDL2_ttf
-            SDL2_mixer # 可能需要音频支持
+            # 使用旧版 SDL2（原生），而不是 nixpkgs-unstable 的 sdl2-compat（需要 SDL3）
+            # sdl2-compat 与 gcc-11.4.0 的 glibc 版本不兼容
+            pkgsOld.SDL2
+            pkgsOld.SDL2_image
+            pkgsOld.SDL2_ttf
+            pkgsOld.SDL2_mixer # 可能需要音频支持
             ffmpeg
 
             # ========================
@@ -145,8 +147,8 @@
             # Chisel/CIRCT: 使用系统的 firtool
             export CHISEL_FIRTOOL_PATH="${pkgs.circt}/bin"
 
-            # SDL2 配置
-            export SDL2_CONFIG="${pkgs.SDL2}/bin/sdl2-config"
+            # SDL2 配置 (使用旧版 SDL2)
+            export SDL2_CONFIG="${pkgsOld.SDL2}/bin/sdl2-config"
 
             # yosys-sta 路径
             export YOSYS_STA_HOME="$YSYX_HOME/yosys-sta"
@@ -154,8 +156,16 @@
             # GDB 自动加载安全路径配置
             # 确保 GDB 可以自动加载项目中的 .gdbinit 文件
             mkdir -p "$HOME/.config/gdb"
-            if ! grep -q "add-auto-load-safe-path.*$NPC_HOME" "$HOME/.config/gdb/gdbinit" 2>/dev/null; then
-              echo "add-auto-load-safe-path $NPC_HOME" >> "$HOME/.config/gdb/gdbinit"
+            if ! grep -q "add-auto-load-safe-path.*$YSYX_HOME" "$HOME/.config/gdb/gdbinit" 2>/dev/null; then
+              echo "add-auto-load-safe-path $YSYX_HOME" >> "$HOME/.config/gdb/gdbinit"
+            fi
+
+            # GDB Dashboard 自动下载/更新
+            # https://github.com/cyrus-and/gdb-dashboard
+            GDBINIT_PATH="$YSYX_HOME/.gdbinit"
+            if [ ! -f "$GDBINIT_PATH" ]; then
+              echo "📥 下载 gdb-dashboard..."
+              curl -fsSL https://raw.githubusercontent.com/cyrus-and/gdb-dashboard/master/.gdbinit -o "$GDBINIT_PATH"
             fi
 
             echo "🚀 YSYX 开发环境已加载!"

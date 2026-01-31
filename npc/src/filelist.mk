@@ -23,7 +23,7 @@ CXXSRC += src/npc-main.cc
 CXXSRC += src/cpu/core.cc
 
 SHARE = $(if $(CONFIG_TARGET_SHARE),1,0)
-LIBS += $(if $(CONFIG_TARGET_NATIVE_ELF),-lreadline -ldl -pie,)
+LIBS += $(if $(CONFIG_TARGET_NATIVE_ELF),-lreadline -ldl,)
 
 # =============================== Verilator 集成 ===============================
 # Verilator 生成的目录和文件 (使用 NPC_HOME 而非 BUILD_DIR, 因为此时 BUILD_DIR 尚未定义)
