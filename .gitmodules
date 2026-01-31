@@ -13,3 +13,6 @@
 [submodule "nemu/tools/spike-diff/repo"]
 	path = nemu/tools/spike-diff/repo
 	url = git@github.com:KINGFIOX/riscv-isa-sim.git
+[submodule "npc"]
+	path = npc
+	url = git@github.com:KINGFIOX/ysyxSoC.git
