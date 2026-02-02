@@ -187,7 +187,6 @@ choice
   depends on DIFFTEST
 config DIFFTEST_REF_SPIKE
   bool "Spike"
-  default y
 endchoice
 
 config DIFFTEST_REF_PATH

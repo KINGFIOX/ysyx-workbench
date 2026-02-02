@@ -15,7 +15,7 @@
 
 #include "mmu.h"
 #include "sim.h"
-#include "../../include/common.h"
+#include <common.h>
 #include <cstdint>
 #include <difftest-def.h>
 

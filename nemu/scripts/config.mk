@@ -27,22 +27,16 @@ rm-distclean += include/generated include/config .config .config.old
 silent := -s
 
 # 使用系统安装的 kconfig 和 fixdep 工具
-CONF   := conf
-MCONF  := mconf
+CONF   := kconfig-conf
+MCONF  := kconfig-mconf
 FIXDEP := fixdep
 
 menuconfig:
+	$(Q)mkdir -p include/config include/generated
 	$(Q)$(MCONF) $(Kconfig)
-	$(Q)$(CONF) $(silent) --syncconfig $(Kconfig)
+	$(Q)$(CONF) $(silent) --silentoldconfig $(Kconfig)
 
-savedefconfig:
-	$(Q)$(CONF) $(silent) --savedefconfig=configs/defconfig $(Kconfig)
-
-%defconfig:
-	$(Q)$(CONF) $(silent) --defconfig=configs/$@ $(Kconfig)
-	$(Q)$(CONF) $(silent) --syncconfig $(Kconfig)
-
-.PHONY: menuconfig savedefconfig defconfig
+.PHONY: menuconfig
 
 # Help text used by make help
 help:

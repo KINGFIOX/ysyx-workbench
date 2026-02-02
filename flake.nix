@@ -57,12 +57,6 @@
           '';
         };
 
-        # kconfig 命令别名包装 (kconfig-frontends 使用 kconfig-conf/kconfig-mconf)
-        kconfigWrapper = pkgs.runCommand "kconfig-wrapper" { } ''
-          mkdir -p $out/bin
-          ln -s ${pkgs.kconfig-frontends}/bin/kconfig-conf $out/bin/conf
-          ln -s ${pkgs.kconfig-frontends}/bin/kconfig-mconf $out/bin/mconf
-        '';
       in
       {
         devShells.default = pkgs.mkShell {
@@ -100,7 +94,6 @@
             dtc # spike
             capstone # 反汇编引擎
             kconfig-frontends # Kconfig 配置系统 (提供 kconfig-conf, kconfig-mconf)
-            kconfigWrapper # 别名包装 (conf, mconf)
             fixdep # 依赖优化工具
 
             # ========================
