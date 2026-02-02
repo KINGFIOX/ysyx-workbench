@@ -8,6 +8,8 @@
 !/navy-apps/*
 !/npc/*
 !/digital/*
+!/tools/*
+!/scripts/*
 !Makefile
 !README.md
 !.gitignore
