@@ -77,6 +77,7 @@
             pkgsOld.llvmPackages_12.libllvm # LLVM 12
             libelf # gelf.h for ftrace
             dtc # spike
+            capstone # 反汇编引擎 (用于 ITRACE)
 
             # ========================
             # NPC (Chisel/Scala) 依赖

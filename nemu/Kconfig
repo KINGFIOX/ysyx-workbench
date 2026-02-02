@@ -42,8 +42,6 @@ config TARGET_NATIVE_ELF
   bool "Executable on Linux Native"
 config TARGET_SHARE
   bool "Shared object (used as REF for differential testing)"
-config TARGET_AM
-  bool "Application on Abstract-Machine (DON'T CHOOSE)"
 endchoice
 
 menu "Build Options"
@@ -55,7 +53,6 @@ config CC_GCC
 config CC_GPP
   bool "g++"
 config CC_CLANG
-  depends on !TARGET_AM
   bool "clang"
 endchoice
 
@@ -88,7 +85,6 @@ config CC_OPT
   default "none"
 
 config CC_LTO
-  depends on !TARGET_AM
   bool "Enable link-time optimization"
   default n
 
@@ -215,7 +211,6 @@ endif
 
 menu "Miscellaneous"
 choice
-  depends on !TARGET_AM
   prompt "Host timer"
   default TIMER_CLOCK_GETTIME
 config TIMER_GETTIMEOFDAY

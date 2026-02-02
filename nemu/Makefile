@@ -66,10 +66,6 @@ LDFLAGS += $(CFLAGS_BUILD) -no-pie
 # Include rules for menuconfig
 include $(NEMU_HOME)/scripts/config.mk
 
-ifdef CONFIG_TARGET_AM
-include $(AM_HOME)/Makefile
-LINKAGE += $(ARCHIVES)
-else
 # Include rules to build NEMU
 include $(NEMU_HOME)/scripts/native.mk
 
@@ -81,7 +77,6 @@ $(YACC_GEN) $(YACC_HDR): $(YACC_SRC)
 $(LEX_GEN): $(LEX_SRC) $(YACC_HDR)
 	@echo + FLEX $<
 	@flex -o $(LEX_GEN) $(LEX_SRC)
-endif
 
 # 清理生成的词法/语法文件
 clean: clean-lex-yacc

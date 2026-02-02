@@ -20,11 +20,11 @@
 #define SCREEN_H (MUXDEF(CONFIG_VGA_SIZE_800x600, 600, 300))
 
 static uint32_t screen_width() {
-  return MUXDEF(CONFIG_TARGET_AM, io_read(AM_GPU_CONFIG).width, SCREEN_W);
+  return SCREEN_W;
 }
 
 static uint32_t screen_height() {
-  return MUXDEF(CONFIG_TARGET_AM, io_read(AM_GPU_CONFIG).height, SCREEN_H);
+  return SCREEN_H;
 }
 
 static uint32_t screen_size() {
@@ -36,8 +36,7 @@ static void *vmem = NULL;
 // [1]: sync flag
 static uint32_t *vgactl_port_base = NULL;
 
-#ifdef CONFIG_VGA_SHOW_SCREEN
-#ifndef CONFIG_TARGET_AM
+#ifdef CONFIG_VGA_SHOW_SCREEN // {
 #include <SDL2/SDL.h>
 
 static SDL_Renderer *renderer = NULL;
@@ -71,17 +70,13 @@ static inline void update_screen() {
   SDL_RenderCopy(renderer, texture, NULL, NULL);
   SDL_RenderPresent(renderer);
 }
-#else
-static void init_screen() {}
-static inline void update_screen() { io_write(AM_GPU_FBDRAW, 0, 0, vmem, screen_width(), screen_height(), true); }
-#endif
-#endif
+#endif // }
 
 void vga_update_screen() {
   if (vgactl_port_base[1]) {
-#ifdef CONFIG_VGA_SHOW_SCREEN
+#ifdef CONFIG_VGA_SHOW_SCREEN // {
     update_screen();
-#endif
+#endif // }
     vgactl_port_base[1] = 0;
   }
 }

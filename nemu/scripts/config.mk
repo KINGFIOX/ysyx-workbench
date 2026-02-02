@@ -45,19 +45,11 @@ menuconfig: $(MCONF) $(CONF) $(FIXDEP)
 	$(Q)$(MCONF) $(Kconfig)
 	$(Q)$(CONF) $(silent) --syncconfig $(Kconfig)
 
-savedefconfig: $(CONF)
-	$(Q)$< $(silent) --$@=configs/defconfig $(Kconfig)
-
-%defconfig: $(CONF) $(FIXDEP)
-	$(Q)$< $(silent) --defconfig=configs/$@ $(Kconfig)
-	$(Q)$< $(silent) --syncconfig $(Kconfig)
-
-.PHONY: menuconfig savedefconfig defconfig
+.PHONY: menuconfig
 
 # Help text used by make help
 help:
 	@echo  '  menuconfig	  - Update current config utilising a menu based program'
-	@echo  '  savedefconfig   - Save current config as configs/defconfig (minimal config)'
 
 distclean: clean
 	-@rm -rf $(rm-distclean)
