@@ -42,6 +42,27 @@
             ln -s ${pkgs.ccache}/bin/ccache $out/bin/$prog
           done
         '';
+
+        # 编译 fixdep 工具 (来自 Linux 内核构建系统)
+        fixdep = pkgs.stdenv.mkDerivation {
+          pname = "fixdep";
+          version = "1.0";
+          src = ./tools/fixdep;
+          buildPhase = ''
+            $CC -O2 -o fixdep fixdep.c
+          '';
+          installPhase = ''
+            mkdir -p $out/bin
+            cp fixdep $out/bin/
+          '';
+        };
+
+        # kconfig 命令别名包装 (kconfig-frontends 使用 kconfig-conf/kconfig-mconf)
+        kconfigWrapper = pkgs.runCommand "kconfig-wrapper" { } ''
+          mkdir -p $out/bin
+          ln -s ${pkgs.kconfig-frontends}/bin/kconfig-conf $out/bin/conf
+          ln -s ${pkgs.kconfig-frontends}/bin/kconfig-mconf $out/bin/mconf
+        '';
       in
       {
         devShells.default = pkgs.mkShell {
@@ -77,7 +98,10 @@
             pkgsOld.llvmPackages_12.libllvm # LLVM 12
             libelf # gelf.h for ftrace
             dtc # spike
-            capstone # 反汇编引擎 (用于 ITRACE)
+            capstone # 反汇编引擎
+            kconfig-frontends # Kconfig 配置系统 (提供 kconfig-conf, kconfig-mconf)
+            kconfigWrapper # 别名包装 (conf, mconf)
+            fixdep # 依赖优化工具
 
             # ========================
             # NPC (Chisel/Scala) 依赖

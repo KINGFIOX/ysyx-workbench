@@ -22,30 +22,27 @@ $(warning $(COLOR_RED)To build the project, first run 'make menuconfig'.$(COLOR_
 endif
 
 Q            := @
-KCONFIG_PATH := $(YSYX_HOME)/tools/kconfig
-FIXDEP_PATH  := $(YSYX_HOME)/tools/fixdep
 Kconfig      := $(NEMU_HOME)/Kconfig
 rm-distclean += include/generated include/config .config .config.old
 silent := -s
 
-CONF   := $(KCONFIG_PATH)/build/conf
-MCONF  := $(KCONFIG_PATH)/build/mconf
-FIXDEP := $(FIXDEP_PATH)/build/fixdep
+# 使用系统安装的 kconfig 和 fixdep 工具
+CONF   := conf
+MCONF  := mconf
+FIXDEP := fixdep
 
-$(CONF):
-	$(Q)$(MAKE) $(silent) -C $(KCONFIG_PATH) NAME=conf
-
-$(MCONF):
-	$(Q)$(MAKE) $(silent) -C $(KCONFIG_PATH) NAME=mconf
-
-$(FIXDEP):
-	$(Q)$(MAKE) $(silent) -C $(FIXDEP_PATH)
-
-menuconfig: $(MCONF) $(CONF) $(FIXDEP)
+menuconfig:
 	$(Q)$(MCONF) $(Kconfig)
 	$(Q)$(CONF) $(silent) --syncconfig $(Kconfig)
 
-.PHONY: menuconfig
+savedefconfig:
+	$(Q)$(CONF) $(silent) --savedefconfig=configs/defconfig $(Kconfig)
+
+%defconfig:
+	$(Q)$(CONF) $(silent) --defconfig=configs/$@ $(Kconfig)
+	$(Q)$(CONF) $(silent) --syncconfig $(Kconfig)
+
+.PHONY: menuconfig savedefconfig defconfig
 
 # Help text used by make help
 help:
