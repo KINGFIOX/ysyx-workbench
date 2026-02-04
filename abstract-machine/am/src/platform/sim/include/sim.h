@@ -6,7 +6,7 @@
 #include ISA_H // the macro `ISA_H` is defined in CFLAGS
                // it will be expanded as "x86/x86.h", "mips/mips32.h", ...
 
-#define nemu_trap(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
+#define ebreak(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
 
 #define DEVICE_BASE 0xa0000000
 

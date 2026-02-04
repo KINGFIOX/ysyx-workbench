@@ -4,15 +4,18 @@
 CFLAGS += -DPLATFORM_NPC
 
 # NPC 独立的源文件
-AM_SRCS += platform/sim/trm.c \
-           platform/sim/ioe/ioe.c
+AM_SRCS += platform/sim/ioe/ioe.c
 
-# NPC 使用 npc/ 下的特定实现（有校准因子的 timer，stub 版的 gpu/input）
+# NPC 使用 npc/ 下的特定实现:
+# 1. 有校准因子的 timer
+# 2. stub 版的 gpu/input
+# 3. 使用 uart 实现的 trm.c
 AM_SRCS += platform/npc/ioe/timer.c \
            platform/npc/ioe/input.c \
            platform/npc/ioe/gpu.c \
            platform/npc/ioe/audio.c \
-           platform/npc/ioe/disk.c
+           platform/npc/ioe/disk.c \
+		   platform/npc/trm.c
 
 CFLAGS    += -fdata-sections -ffunction-sections
 CFLAGS    += -I$(AM_HOME)/am/src/platform/sim/include
