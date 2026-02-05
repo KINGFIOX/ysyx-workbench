@@ -15,10 +15,10 @@ AM_SRCS += platform/npc/ioe/timer.c \
            platform/npc/ioe/gpu.c \
            platform/npc/ioe/audio.c \
            platform/npc/ioe/disk.c \
-		   platform/npc/trm.c
+		   platform/npc/ioe/trm.c
 
 CFLAGS    += -fdata-sections -ffunction-sections
-CFLAGS    += -I$(AM_HOME)/am/src/platform/sim/include
+CFLAGS    += -I$(AM_HOME)/am/src/platform/npc/include
 
 # 从 NPC 配置文件读取 mrom 和 sram 地址
 NPC_CONFIG := $(NPC_HOME)/.config
@@ -43,7 +43,7 @@ insert-arg: image
 image: image-dep
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
-	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
+	@$(OBJCOPY) -S -O binary $(IMAGE).elf $(IMAGE).bin
 
 .PHONY: insert-arg
 

@@ -1,6 +1,8 @@
-/* NPC 专用链接脚本
- * .text 放在 mrom 中
- * .data 放在 sram 中
+/*
+ * .text/.rodata 放在 mrom 中 (代码和只读数据)
+ * .data/.bss 的 VMA 在 sram 中 (运行时地址)
+ * .data 的 LMA 在 mrom 中 (加载地址，紧跟 .rodata 后面)
+ * 启动代码负责把 .data 从 mrom 复制到 sram
  * 地址通过 LDFLAGS 的 --defsym 从 $NPC_HOME/.config 获取
  */
 
@@ -17,34 +19,43 @@ SECTIONS {
     *(entry)
     *(.text*)
   } > mrom
-  etext = .;
-  _etext = .;
 
   /* 只读数据段也放在 mrom */
   .rodata : {
     *(.rodata*)
   } > mrom
+  _rodata_end = .;
 
-  /* 数据段放在 sram */
-  .data : {
+  /*
+    .data 在物理内存中, 最终其实会有两份:
+      1. mrom(只读)
+      2. sram(可读可写, 但是一开始是空的)
+    既然 .data 会有两份: 那么也就意味着有两份地址:
+      1. mrom: _data_lma
+      2. sram: _data_start, _data_end
+    AT, LOADADDR 配套使用: at(define), loadaddr(use)
+  */
+  .data : AT(_rodata_end) {
+    _data_start = .;
     *(.data*)
+    _data_end = .;
   } > sram
-  edata = .;
-  _data = .;
+  _data_lma = LOADADDR(.data);
 
-  /* BSS 段放在 sram */
+  /* BSS 段放在 sram，无需加载（启动代码清零） */
   .bss : {
     _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
+    _bss_end = .;
   } > sram
 
-  /* 栈放在 sram */
-  _stack_top = ALIGN(0x1000);
-  . = _stack_top + 0x8000;
-  _stack_pointer = .;
-  end = .;
-  _end = .;
-  _heap_start = ALIGN(0x1000);
+  /* 
+   * 栈放在 sram 末尾，向下增长
+   * _stack_pointer 指向 sram 末尾
+   * 栈空间 = sram 末尾 - .bss 结束位置
+   */
+  _stack_pointer = _sram_base + _sram_size;
+  _heap_start = .; /* FIXME: 实际上没有空间了 */
 }

@@ -1,5 +1,5 @@
 #include <am.h>
-#include <sim.h>
+#include <npc.h>
 
 static uint64_t boot_time = 0;
 
