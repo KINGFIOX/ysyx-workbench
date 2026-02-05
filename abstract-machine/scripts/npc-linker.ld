@@ -20,9 +20,10 @@ SECTIONS {
     *(.text*)
   } > mrom
 
-  /* 只读数据段也放在 mrom */
+  /* 只读数据段也放在 mrom，包括 .srodata (small rodata) */
   .rodata : {
     *(.rodata*)
+    *(.srodata*) /* riscv small data section */
   } > mrom
   _rodata_end = .;
 
@@ -38,6 +39,7 @@ SECTIONS {
   .data : AT(_rodata_end) {
     _data_start = .;
     *(.data*)
+    *(.sdata*)    /* RISC-V small data section */
     _data_end = .;
   } > sram
   _data_lma = LOADADDR(.data);

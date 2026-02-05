@@ -47,8 +47,8 @@ image: image-dep
 
 .PHONY: insert-arg
 
-# run NPC in batch mode by default for automated tests
-NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/npc-log.txt
+# TODO: run NPC in batch mode by default for automated tests
+NPCFLAGS += -b -l $(shell dirname $(IMAGE).elf)/npc-log.txt
 
 run: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
