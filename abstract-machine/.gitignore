@@ -17,5 +17,5 @@ _*
 build/
 !.gitignore
 .vscode
-!elf-naming.md
-!insert-mainarg.md
+
+!report/**

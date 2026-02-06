@@ -32,6 +32,7 @@ LDSCRIPTS += $(AM_HOME)/scripts/npc-linker.ld
 LDFLAGS   += --defsym=_mrom_base=$(MROM_BASE) --defsym=_mrom_size=$(MROM_SIZE)
 LDFLAGS   += --defsym=_sram_base=$(SRAM_BASE) --defsym=_sram_size=$(SRAM_SIZE)
 LDFLAGS   += --gc-sections -e _start
+LDFLAGS   += --orphan-handling=warn
 
 MAINARGS_MAX_LEN = 64
 MAINARGS_PLACEHOLDER = the_insert-arg_rule_in_Makefile_will_insert_mainargs_here
@@ -48,7 +49,7 @@ image: image-dep
 .PHONY: insert-arg
 
 # TODO: run NPC in batch mode by default for automated tests
-NPCFLAGS += -b -l $(shell dirname $(IMAGE).elf)/npc-log.txt
+NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/npc-log.txt
 
 run: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
