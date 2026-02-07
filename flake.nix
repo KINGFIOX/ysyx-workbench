@@ -104,6 +104,7 @@
             circt # 包含 firtool，Chisel 生成 Verilog 需要
             metals # mill 不会自动下载
             mill_0_12_4 # 锁定到 0.12.4 版本
+            scalafix
 
             # ========================
             # Verilog/仿真工具
