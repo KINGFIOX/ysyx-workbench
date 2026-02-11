@@ -22,20 +22,21 @@ CFLAGS    += -I$(AM_HOME)/am/src/platform/npc/include
 
 # 从 NPC 配置文件读取地址配置
 NPC_CONFIG := $(NPC_HOME)/.config
-MROM_BASE := $(shell grep '^CONFIG_SOC_MROM_BASE=' $(NPC_CONFIG) | cut -d= -f2)
-MROM_SIZE := $(shell grep '^CONFIG_SOC_MROM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
 SRAM_BASE := $(shell grep '^CONFIG_SOC_SRAM_BASE=' $(NPC_CONFIG) | cut -d= -f2)
 SRAM_SIZE := $(shell grep '^CONFIG_SOC_SRAM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
 FLASH_BASE := $(shell grep '^CONFIG_SOC_XIP_FLASH_BASE=' $(NPC_CONFIG) | cut -d= -f2)
 FLASH_SIZE := $(shell grep '^CONFIG_SOC_XIP_FLASH_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
+PSRAM_BASE := $(shell grep '^CONFIG_SOC_PSRAM_BASE=' $(NPC_CONFIG) | cut -d= -f2)
+PSRAM_SIZE := $(shell grep '^CONFIG_SOC_PSRAM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
 
 # 将地址配置传递给 C 程序
 CFLAGS += -DFLASH_BASE=$(FLASH_BASE) -DFLASH_SIZE=$(FLASH_SIZE)
+CFLAGS += -DPSRAM_BASE=$(PSRAM_BASE) -DPSRAM_SIZE=$(PSRAM_SIZE)
 
 # 使用 NPC 专用链接脚本
 LDSCRIPTS += $(AM_HOME)/scripts/npc-linker.ld
-LDFLAGS   += --defsym=_mrom_base=$(MROM_BASE) --defsym=_mrom_size=$(MROM_SIZE)
-LDFLAGS   += --defsym=_sram_base=$(SRAM_BASE) --defsym=_sram_size=$(SRAM_SIZE)
+LDFLAGS   += --defsym=_flash_base=$(FLASH_BASE) --defsym=_flash_size=$(FLASH_SIZE)
+LDFLAGS   += --defsym=_sram_base=$(SRAM_BASE)   --defsym=_sram_size=$(SRAM_SIZE)
 LDFLAGS   += --gc-sections -e _start
 LDFLAGS   += --orphan-handling=warn
 
@@ -55,11 +56,6 @@ image: image-dep
 
 # TODO: run NPC in batch mode by default for automated tests
 NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/npc-log.txt
-
-# Flash file support: pass via FLASH variable
-ifdef FLASH
-NPCFLAGS += -f $(FLASH)
-endif
 
 run: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
