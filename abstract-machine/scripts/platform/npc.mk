@@ -22,6 +22,8 @@ CFLAGS    += -I$(AM_HOME)/am/src/platform/npc/include
 
 # 从 NPC 配置文件读取地址配置
 NPC_CONFIG := $(NPC_HOME)/.config
+MROM_BASE := $(shell grep '^CONFIG_SOC_MROM_BASE=' $(NPC_CONFIG) | cut -d= -f2)
+MROM_SIZE := $(shell grep '^CONFIG_SOC_MROM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
 SRAM_BASE := $(shell grep '^CONFIG_SOC_SRAM_BASE=' $(NPC_CONFIG) | cut -d= -f2)
 SRAM_SIZE := $(shell grep '^CONFIG_SOC_SRAM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
 FLASH_BASE := $(shell grep '^CONFIG_SOC_XIP_FLASH_BASE=' $(NPC_CONFIG) | cut -d= -f2)
@@ -36,7 +38,7 @@ CFLAGS += -DPSRAM_BASE=$(PSRAM_BASE) -DPSRAM_SIZE=$(PSRAM_SIZE)
 # 使用 NPC 专用链接脚本
 LDSCRIPTS += $(AM_HOME)/scripts/npc-linker.ld
 LDFLAGS   += --defsym=_flash_base=$(FLASH_BASE) --defsym=_flash_size=$(FLASH_SIZE)
-LDFLAGS   += --defsym=_sram_base=$(SRAM_BASE)   --defsym=_sram_size=$(SRAM_SIZE)
+LDFLAGS   += --defsym=_psram_base=$(PSRAM_BASE)   --defsym=_psram_size=$(PSRAM_SIZE)
 LDFLAGS   += --gc-sections -e _start
 LDFLAGS   += --orphan-handling=warn
 
@@ -55,7 +57,7 @@ image: image-dep
 .PHONY: insert-arg
 
 # TODO: run NPC in batch mode by default for automated tests
-NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/npc-log.txt
+NPCFLAGS += -b -l $(shell dirname $(IMAGE).elf)/npc-log.txt
 
 run: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin

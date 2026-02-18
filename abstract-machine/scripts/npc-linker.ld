@@ -2,7 +2,7 @@ ENTRY(_start)
 
 MEMORY {
   flash (rx)  : ORIGIN = _flash_base, LENGTH = _flash_size
-  sram (rwx) : ORIGIN = _sram_base, LENGTH = _sram_size
+  psram (rwx) : ORIGIN = _psram_base, LENGTH = _psram_size
 }
 
 SECTIONS {
@@ -22,7 +22,7 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } > sram
+  } > psram
   _data_lma = LOADADDR(.data);
 
   .bss : {
@@ -31,8 +31,8 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
-  } > sram
+  } > psram
 
-  _stack_pointer = _sram_base + _sram_size;
+  _stack_pointer = _psram_base + _psram_size;
   _heap_start = .; /* FIXME: 实际上没有空间了 */
 }
