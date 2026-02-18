@@ -4,7 +4,7 @@
 extern char _heap_start;
 int main(const char *args);
 
-Area heap = RANGE(&_heap_start, PMEM_END); // FIXME: PMEM_END is invalid
+Area heap = RANGE(&_heap_start, PMEM_END);
 static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS_PLACEHOLDER); // defined in CFLAGS
 
 #define UART_BASE 0x10000000

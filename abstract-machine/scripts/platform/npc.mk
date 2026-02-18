@@ -38,7 +38,7 @@ CFLAGS += -DPSRAM_BASE=$(PSRAM_BASE) -DPSRAM_SIZE=$(PSRAM_SIZE)
 # 使用 NPC 专用链接脚本
 LDSCRIPTS += $(AM_HOME)/scripts/npc-linker.ld
 LDFLAGS   += --defsym=_flash_base=$(FLASH_BASE) --defsym=_flash_size=$(FLASH_SIZE)
-LDFLAGS   += --defsym=_psram_base=$(PSRAM_BASE)   --defsym=_psram_size=$(PSRAM_SIZE)
+LDFLAGS   += --defsym=_psram_base=$(PSRAM_BASE) --defsym=_psram_size=$(PSRAM_SIZE)
 LDFLAGS   += --gc-sections -e _start
 LDFLAGS   += --orphan-handling=warn
 
@@ -57,7 +57,7 @@ image: image-dep
 .PHONY: insert-arg
 
 # TODO: run NPC in batch mode by default for automated tests
-NPCFLAGS += -b -l $(shell dirname $(IMAGE).elf)/npc-log.txt
+NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/npc-log.txt
 
 run: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin

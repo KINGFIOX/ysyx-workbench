@@ -21,11 +21,13 @@
 #define FB_ADDR         (MMIO_BASE   + 0x1000000)
 #define AUDIO_SBUF_ADDR (MMIO_BASE   + 0x1200000)
 
-extern char _pmem_start;
-#define PMEM_SIZE (128 * 1024 * 1024) // FIXME: 实际上 pmem 已经没了, 取而代之的是 mrom+sram
-#define PMEM_END  ((uintptr_t)&_pmem_start + PMEM_SIZE)
+extern char _flash_base;
+extern char _psram_base;
+#define PMEM_END  ((uintptr_t)&_psram_base + PSRAM_SIZE)
+#define FLASH_END ((uintptr_t)&_flash_base + FLASH_SIZE)
 #define SIM_PADDR_SPACE \
-  RANGE(&_pmem_start, PMEM_END), \
+  RANGE(&_flash_base, FLASH_END), \
+  RANGE(&_psram_base, PMEM_END), \
   RANGE(FB_ADDR, FB_ADDR + 0x200000), \
   RANGE(MMIO_BASE, MMIO_BASE + 0x1000) /* serial, rtc, screen, keyboard */
 
