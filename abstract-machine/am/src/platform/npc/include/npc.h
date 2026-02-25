@@ -31,10 +31,12 @@ extern char _flash_base;
 #define FLASH_END ((uintptr_t)&_flash_base + FLASH_SIZE)
 
 extern char _psram_base;
-#define PMEM_END  ((uintptr_t)&_psram_base + PSRAM_SIZE)
+#define PSRAM_END  ((uintptr_t)&_psram_base + PSRAM_SIZE)
 
 extern char _sdram_base;
 #define SDRAM_END ((uintptr_t)&_sdram_base + SDRAM_SIZE)
+
+#define PMEM_END SDRAM_END // NOTE: change to sdram
 
 #define SIM_PADDR_SPACE \
   RANGE(&_flash_base, FLASH_END), \

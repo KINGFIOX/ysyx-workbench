@@ -2,7 +2,7 @@ ENTRY(_start)
 
 MEMORY {
   irom (rx)  : ORIGIN = _flash_base, LENGTH = _flash_size
-  dram (rwx) : ORIGIN = _psram_base, LENGTH = _psram_size
+  dram (rwx) : ORIGIN = _sdram_base, LENGTH = _sdram_size
 }
 
 SECTIONS {
