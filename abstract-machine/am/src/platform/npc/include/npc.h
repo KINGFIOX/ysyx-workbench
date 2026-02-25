@@ -21,10 +21,21 @@
 #define FB_ADDR         (MMIO_BASE   + 0x1000000)
 #define AUDIO_SBUF_ADDR (MMIO_BASE   + 0x1200000)
 
+extern char _mrom_base;
+#define MROM_END ((uintptr_t)&_mrom_base + MROM_SIZE)
+
+extern char _sram_base;
+#define SRAM_END ((uintptr_t)&_sram_base + SRAM_SIZE)
+
 extern char _flash_base;
+#define FLASH_END ((uintptr_t)&_flash_base + FLASH_SIZE)
+
 extern char _psram_base;
 #define PMEM_END  ((uintptr_t)&_psram_base + PSRAM_SIZE)
-#define FLASH_END ((uintptr_t)&_flash_base + FLASH_SIZE)
+
+extern char _sdram_base;
+#define SDRAM_END ((uintptr_t)&_sdram_base + SDRAM_SIZE)
+
 #define SIM_PADDR_SPACE \
   RANGE(&_flash_base, FLASH_END), \
   RANGE(&_psram_base, PMEM_END), \

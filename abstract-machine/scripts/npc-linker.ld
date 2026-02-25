@@ -1,20 +1,20 @@
 ENTRY(_start)
 
 MEMORY {
-  flash (rx)  : ORIGIN = _flash_base, LENGTH = _flash_size
-  psram (rwx) : ORIGIN = _psram_base, LENGTH = _psram_size
+  irom (rx)  : ORIGIN = _flash_base, LENGTH = _flash_size
+  dram (rwx) : ORIGIN = _psram_base, LENGTH = _psram_size
 }
 
 SECTIONS {
   .text : {
     *(entry)
     *(.text*)
-  } > flash
+  } > irom
 
   .rodata : {
     *(.rodata*)
     *(.srodata*)
-  } > flash
+  } > irom
   _rodata_end = .;
 
   .data : AT(_rodata_end) {
@@ -22,7 +22,7 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } > psram
+  } > dram
   _data_lma = LOADADDR(.data);
 
   .bss : {
@@ -31,7 +31,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
-  } > psram
+  } > dram
   _stack_top = ALIGN(0x1000);
   . = _stack_top + 0x8000;
   _stack_pointer = .;

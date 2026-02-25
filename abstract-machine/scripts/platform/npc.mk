@@ -22,23 +22,31 @@ CFLAGS    += -I$(AM_HOME)/am/src/platform/npc/include
 
 # 从 NPC 配置文件读取地址配置
 NPC_CONFIG := $(NPC_HOME)/.config
-MROM_BASE := $(shell grep '^CONFIG_SOC_MROM_BASE=' $(NPC_CONFIG) | cut -d= -f2)
+MROM_BASE := $(shell grep '^CONFIG_SOC_MROM_BASE=' $(NPC_CONFIG) | cut -d= -f2) # mrom
 MROM_SIZE := $(shell grep '^CONFIG_SOC_MROM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
-SRAM_BASE := $(shell grep '^CONFIG_SOC_SRAM_BASE=' $(NPC_CONFIG) | cut -d= -f2)
+SRAM_BASE := $(shell grep '^CONFIG_SOC_SRAM_BASE=' $(NPC_CONFIG) | cut -d= -f2) # sram
 SRAM_SIZE := $(shell grep '^CONFIG_SOC_SRAM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
-FLASH_BASE := $(shell grep '^CONFIG_SOC_XIP_FLASH_BASE=' $(NPC_CONFIG) | cut -d= -f2)
+FLASH_BASE := $(shell grep '^CONFIG_SOC_XIP_FLASH_BASE=' $(NPC_CONFIG) | cut -d= -f2) # flash
 FLASH_SIZE := $(shell grep '^CONFIG_SOC_XIP_FLASH_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
-PSRAM_BASE := $(shell grep '^CONFIG_SOC_PSRAM_BASE=' $(NPC_CONFIG) | cut -d= -f2)
+PSRAM_BASE := $(shell grep '^CONFIG_SOC_PSRAM_BASE=' $(NPC_CONFIG) | cut -d= -f2) # psram
 PSRAM_SIZE := $(shell grep '^CONFIG_SOC_PSRAM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
+SDRAM_BASE := $(shell grep '^CONFIG_SOC_SDRAM_BASE=' $(NPC_CONFIG) | cut -d= -f2) # sdram
+SDRAM_SIZE := $(shell grep '^CONFIG_SOC_SDRAM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
 
 # 将地址配置传递给 C 程序
-CFLAGS += -DFLASH_BASE=$(FLASH_BASE) -DFLASH_SIZE=$(FLASH_SIZE)
-CFLAGS += -DPSRAM_BASE=$(PSRAM_BASE) -DPSRAM_SIZE=$(PSRAM_SIZE)
+CFLAGS += -DMROM_BASE=$(MROM_BASE) -DMROM_SIZE=$(MROM_SIZE) # mrom
+CFLAGS += -DSRAM_BASE=$(SRAM_BASE) -DSRAM_SIZE=$(SRAM_SIZE) # sram
+CFLAGS += -DFLASH_BASE=$(FLASH_BASE) -DFLASH_SIZE=$(FLASH_SIZE) # flash
+CFLAGS += -DPSRAM_BASE=$(PSRAM_BASE) -DPSRAM_SIZE=$(PSRAM_SIZE) # psram
+CFLAGS += -DSDRAM_BASE=$(SDRAM_BASE) -DSDRAM_SIZE=$(SDRAM_SIZE) # sdram
 
 # 使用 NPC 专用链接脚本
 LDSCRIPTS += $(AM_HOME)/scripts/npc-linker.ld
-LDFLAGS   += --defsym=_flash_base=$(FLASH_BASE) --defsym=_flash_size=$(FLASH_SIZE)
-LDFLAGS   += --defsym=_psram_base=$(PSRAM_BASE) --defsym=_psram_size=$(PSRAM_SIZE)
+LDFLAGS   += --defsym=_mrom_base=$(MROM_BASE) --defsym=_mrom_size=$(MROM_SIZE) # mrom
+LDFLAGS   += --defsym=_sram_base=$(SRAM_BASE) --defsym=_sram_size=$(SRAM_SIZE) # sram
+LDFLAGS   += --defsym=_flash_base=$(FLASH_BASE) --defsym=_flash_size=$(FLASH_SIZE) # flash
+LDFLAGS   += --defsym=_psram_base=$(PSRAM_BASE) --defsym=_psram_size=$(PSRAM_SIZE) # psram
+LDFLAGS   += --defsym=_sdram_base=$(SDRAM_BASE) --defsym=_sdram_size=$(SDRAM_SIZE) # sdram
 LDFLAGS   += --gc-sections -e _start
 LDFLAGS   += --orphan-handling=warn
 
