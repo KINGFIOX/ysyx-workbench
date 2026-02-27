@@ -3,8 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    # 旧版 nixpkgs，用于获取已移除的 gcc11
-    nixpkgs-old.url = "github:NixOS/nixpkgs/nixos-23.11";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -12,17 +10,11 @@
     {
       self,
       nixpkgs,
-      nixpkgs-old,
       flake-utils,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        # 从旧版 nixpkgs 获取 gcc11
-        pkgsOld = import nixpkgs-old {
-          inherit system;
-        };
-
         pkgs = import nixpkgs {
           inherit system;
           config.allowUnfree = true;
@@ -75,10 +67,10 @@
             automake
 
             # ========================
-            # C/C++ 工具链 (从旧版 nixpkgs 获取)
+            # C/C++ 工具链
             # ========================
-            pkgsOld.gcc11 # GCC 11.4
-            pkgsOld.clang-tools_12 # clangd, clang-format 等 (LLVM 12)
+            gcc
+            clang-tools
             gdb
             lldb
             bear
@@ -90,7 +82,7 @@
             bison
             readline
             ncurses
-            pkgsOld.llvmPackages_12.libllvm # LLVM 12
+            llvmPackages.libllvm
             libelf # gelf.h for ftrace
             dtc # spike
             capstone # 反汇编引擎
@@ -120,10 +112,10 @@
             # ========================
             # 使用旧版 SDL2（原生），而不是 nixpkgs-unstable 的 sdl2-compat（需要 SDL3）
             # sdl2-compat 与 gcc-11.4.0 的 glibc 版本不兼容
-            pkgsOld.SDL2
-            pkgsOld.SDL2_image
-            pkgsOld.SDL2_ttf
-            pkgsOld.SDL2_mixer # 可能需要音频支持
+            SDL2
+            SDL2_image
+            SDL2_ttf
+            SDL2_mixer # 可能需要音频支持
             ffmpeg
 
             # ========================
@@ -170,7 +162,7 @@
             export CHISEL_FIRTOOL_PATH="${pkgs.circt}/bin"
 
             # SDL2 配置 (使用旧版 SDL2)
-            export SDL2_CONFIG="${pkgsOld.SDL2}/bin/sdl2-config"
+            export SDL2_CONFIG="${pkgs.SDL2}/bin/sdl2-config"
 
             # yosys-sta 路径
             export YOSYS_STA_HOME="$YSYX_HOME/yosys-sta"
