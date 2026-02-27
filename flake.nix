@@ -68,6 +68,7 @@
             # ========================
             gnumake
             cmake
+            meson
             ninja
             pkg-config
             autoconf

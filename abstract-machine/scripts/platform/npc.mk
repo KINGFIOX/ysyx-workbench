@@ -20,18 +20,10 @@ AM_SRCS += platform/npc/ioe/timer.c \
 CFLAGS    += -fdata-sections -ffunction-sections
 CFLAGS    += -I$(AM_HOME)/am/src/platform/npc/include
 
-# 从 NPC 配置文件读取地址配置
-NPC_CONFIG := $(NPC_HOME)/.config
-MROM_BASE := $(shell grep '^CONFIG_SOC_MROM_BASE=' $(NPC_CONFIG) | cut -d= -f2) # mrom
-MROM_SIZE := $(shell grep '^CONFIG_SOC_MROM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
-SRAM_BASE := $(shell grep '^CONFIG_SOC_SRAM_BASE=' $(NPC_CONFIG) | cut -d= -f2) # sram
-SRAM_SIZE := $(shell grep '^CONFIG_SOC_SRAM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
-FLASH_BASE := $(shell grep '^CONFIG_SOC_XIP_FLASH_BASE=' $(NPC_CONFIG) | cut -d= -f2) # flash
-FLASH_SIZE := $(shell grep '^CONFIG_SOC_XIP_FLASH_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
-PSRAM_BASE := $(shell grep '^CONFIG_SOC_PSRAM_BASE=' $(NPC_CONFIG) | cut -d= -f2) # psram
-PSRAM_SIZE := $(shell grep '^CONFIG_SOC_PSRAM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
-SDRAM_BASE := $(shell grep '^CONFIG_SOC_SDRAM_BASE=' $(NPC_CONFIG) | cut -d= -f2) # sdram
-SDRAM_SIZE := $(shell grep '^CONFIG_SOC_SDRAM_SIZE=' $(NPC_CONFIG) | cut -d= -f2)
+# 从 NPC Meson 配置读取地址 (优先 meson introspect，否则 meson_options.txt 默认值)
+NPC_SOC_CONFIG_MK := $(AM_HOME)/.npc-soc-config.mk
+$(shell NPC_HOME=$(NPC_HOME) python3 $(AM_HOME)/tools/get-npc-soc-config.py > $(NPC_SOC_CONFIG_MK) 2>/dev/null)
+-include $(NPC_SOC_CONFIG_MK)
 
 # 将地址配置传递给 C 程序
 CFLAGS += -DMROM_BASE=$(MROM_BASE) -DMROM_SIZE=$(MROM_SIZE) # mrom
@@ -68,7 +60,7 @@ image: image-dep
 NPCFLAGS += -b -l $(shell dirname $(IMAGE).elf)/npc-log.txt
 
 run: insert-arg
-	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) GUEST_ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
 gdb: insert-arg
-	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) gdb ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) GUEST_ISA=$(ISA) gdb ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
