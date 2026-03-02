@@ -18,4 +18,18 @@ struct Context {
 #define GPR4 gpr[0]
 #define GPRx gpr[0]
 
+#define MVENDORID                                                              \
+  ({                                                                           \
+    uintptr_t mvendorid;                                                       \
+    asm volatile("csrr %0, mvendorid\n" : "=r"(mvendorid));                    \
+    (mvendorid);                                                               \
+  })
+
+#define MARCHID                                                                \
+  ({                                                                           \
+    uintptr_t marchid;                                                         \
+    asm volatile("csrr %0, marchid\n" : "=r"(marchid));                        \
+    (marchid);                                                                 \
+  })
+
 #endif

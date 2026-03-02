@@ -73,4 +73,29 @@ struct gpu_canvas {
   };
 } __attribute__((packed));
 
+// ================================================================
+// gpio
+// ================================================================
+#define GPIO_BASE (0x10002000L)
+#define GPIO_LED (GPIO_BASE + 0x00)
+#define GPIO_SWITCH (GPIO_BASE + 0x04)
+#define GPIO_SEGS (GPIO_BASE + 0x08)
+
+#define SEG_ZERO (0b00000011)
+#define SEG_ONE (0b10011111)
+#define SEG_TWO (0b00100101)
+#define SEG_THREE (0b00001101)
+#define SEG_FOUR (0b10011001)
+#define SEG_FIVE (0b01001001)
+#define SEG_SIX (0b01000001)
+#define SEG_SEVEN (0b00011111)
+#define SEG_EIGHT (0b00000001)
+#define SEG_NINE (0b00001001)
+#define SEG_TEN (0b00010001)
+#define SEG_ELEVEN (0b11000001)
+#define SEG_TWELVE (0b01100011)
+#define SEG_THIRTEEN (0b10000101)
+#define SEG_FOURTEEN (0b01100001)
+#define SEG_FIFTEEN (0b01110001)
+
 #endif

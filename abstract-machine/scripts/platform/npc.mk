@@ -58,6 +58,13 @@ image: image-dep
 
 # TODO: run NPC in batch mode by default for automated tests
 NPCFLAGS += -b -l $(shell dirname $(IMAGE).elf)/npc-log.txt
+ifdef NVBOARD
+NPCFLAGS += --nvboard
+endif
+ifdef WAVE
+NPCFLAGS += --wave
+endif
+
 
 run: insert-arg
 	$(MAKE) -C $(NPC_HOME) GUEST_ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin

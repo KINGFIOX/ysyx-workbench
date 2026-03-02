@@ -1,12 +1,21 @@
 #include <am.h>
 #include <npc.h>
 
+// ================================================================
+// heap
+// ================================================================
 extern char _heap_start;
-int main(const char *args);
-
 Area heap = RANGE(&_heap_start, PMEM_END);
+
+// ================================================================
+// main
+// ================================================================
+int main(const char *args);
 static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS_PLACEHOLDER); // defined in CFLAGS
 
+// ================================================================
+// uart
+// ================================================================
 #define UART_BASE 0x10000000
 // UART 16550 寄存器定义
 #define UART_THR (UART_BASE + 0) // Transmit Holding Register (DLAB=0)
@@ -54,6 +63,9 @@ static void uart_init(void) {
   *fcr = FCR_FIFO_ENABLE | FCR_RX_RESET | FCR_TX_RESET;
 }
 
+// ================================================================
+// putch
+// ================================================================
 void putch(char ch) {
   volatile char *thr = (volatile char *)UART_THR;
   volatile char *lsr = (volatile char *)UART_LSR;
@@ -65,6 +77,9 @@ void putch(char ch) {
   *thr = ch;
 }
 
+// ================================================================
+// halt
+// ================================================================
 void halt(int code) {
   ebreak(code);
 
@@ -72,6 +87,9 @@ void halt(int code) {
   while (1);
 }
 
+// ================================================================
+// trm_init
+// ================================================================
 void _trm_init() {
   uart_init();
   int ret = main(mainargs);
