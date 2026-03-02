@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -11,6 +15,7 @@
       self,
       nixpkgs,
       flake-utils,
+      rust-overlay,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -18,7 +23,10 @@
         pkgs = import nixpkgs {
           inherit system;
           config.allowUnfree = true;
-          overlays = [ (import ./overlay.nix) ];
+          overlays = [
+            (import ./overlay.nix)
+            rust-overlay.overlays.default
+          ];
         };
 
         # 创建空的 stubs-ilp32.h 来修复 rv32 编译问题
@@ -48,6 +56,11 @@
             cp fixdep $out/bin/
           '';
         };
+
+        # autocxx / bindgen 需要的 GCC C++ 标准库头文件路径
+        gccForLibs = pkgs.gcc-unwrapped;
+        gccVersion = gccForLibs.version;
+        gccArch = "x86_64-unknown-linux-gnu";
 
       in
       {
@@ -125,6 +138,13 @@
             stubsIlp32Fix # 修复缺少的 stubs-ilp32.h
 
             # ========================
+            # Rust 工具链 (via rust-overlay)
+            # ========================
+            (rust-bin.stable.latest.default.override {
+              extensions = [ "rust-src" "rust-analyzer" ];
+            })
+
+            # ========================
             # 实用工具
             # ========================
             git
@@ -137,6 +157,21 @@
           # 环境变量设置
           STUBS_ILP32_FIX = "${stubsIlp32Fix}/include";
 
+          # autocxx / bindgen: libclang 路径
+          LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
+
+          # Verilator: include 路径 (供 build.rs 使用)
+          VERILATOR_ROOT = "${pkgs.verilator}/share/verilator";
+
+          # autocxx / bindgen: GCC C++ 标准库头文件路径
+          BINDGEN_EXTRA_CLANG_ARGS = builtins.toString [
+            "-isystem${gccForLibs}/include/c++/${gccVersion}"
+            "-isystem${gccForLibs}/include/c++/${gccVersion}/${gccArch}"
+            "-isystem${gccForLibs}/lib/gcc/${gccArch}/${gccVersion}/include"
+            "-isystem${gccForLibs}/lib/gcc/${gccArch}/${gccVersion}/include-fixed"
+            "-isystem${pkgs.glibc.dev}/include"
+          ];
+
           shellHook = ''
             # 设置项目根目录
             export YSYX_HOME="$(pwd)"
@@ -144,6 +179,7 @@
             export AM_HOME="$YSYX_HOME/abstract-machine"
             export NPC_HOME="$YSYX_HOME/npc"
             export NVBOARD_HOME="$YSYX_HOME/nvboard"
+            export SPIKE_HOME="$YSYX_HOME/tools/spike"
 
             # 使用 ccache: 通过 PATH prepend 方式，让 gcc/g++ 调用自动走 ccache
             export PATH="${ccacheWrapper}/bin:$PATH"
@@ -163,6 +199,10 @@
 
             # SDL2 配置 (使用旧版 SDL2)
             export SDL2_CONFIG="${pkgs.SDL2}/bin/sdl2-config"
+
+            # Rust/Cargo: 避免污染家目录
+            export CARGO_HOME="$NPC_HOME/.cargo"
+            export PATH="$CARGO_HOME:$PATH"
 
             # yosys-sta 路径
             export YOSYS_STA_HOME="$YSYX_HOME/yosys-sta"
