@@ -5,6 +5,9 @@
 
 #include <am.h>
 
+// ================================================================
+// device register
+// ================================================================
 #define AM_DEVREG(id, reg, perm, ...) \
   enum { AM_##reg = (id) }; \
   typedef struct { __VA_ARGS__; } AM_##reg##_T;
@@ -34,8 +37,9 @@ AM_DEVREG(22, NET_STATUS,   RD, int rx_len, tx_len);
 AM_DEVREG(23, NET_TX,       WR, Area buf);
 AM_DEVREG(24, NET_RX,       WR, Area buf);
 
-// Input
-
+// ================================================================
+// keyboard
+// ================================================================
 #define AM_KEYS(_) \
   _(ESCAPE) _(F1) _(F2) _(F3) _(F4) _(F5) _(F6) _(F7) _(F8) _(F9) _(F10) _(F11) _(F12) \
   _(GRAVE) _(1) _(2) _(3) _(4) _(5) _(6) _(7) _(8) _(9) _(0) _(MINUS) _(EQUALS) _(BACKSPACE) \
@@ -51,8 +55,9 @@ enum {
   AM_KEYS(AM_KEY_NAMES)
 };
 
-// GPU
-
+// ================================================================
+// gpu
+// ================================================================
 #define AM_GPU_TEXTURE  1
 #define AM_GPU_SUBTREE  2
 #define AM_GPU_NULL     0xffffffff

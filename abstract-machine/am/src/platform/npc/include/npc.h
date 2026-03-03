@@ -12,13 +12,15 @@
 
 #define MMIO_BASE 0xa0000000
 
-#define SERIAL_PORT     (0x10000000)
-#define KBD_ADDR        (DEVICE_BASE + 0x0000060)
+#define VGA_BASE (0x21000000)
+#define VGA_SIZE (0x200000)
+
+#define KBD_ADDR        (0x10011000)
 #define RTC_ADDR        (DEVICE_BASE + 0x0000048)
 #define VGACTL_ADDR     (DEVICE_BASE + 0x0000100)
 #define AUDIO_ADDR      (DEVICE_BASE + 0x0000200)
 #define DISK_ADDR       (DEVICE_BASE + 0x0000300)
-#define FB_ADDR         (MMIO_BASE   + 0x1000000)
+#define FB_ADDR         VGA_BASE
 #define AUDIO_SBUF_ADDR (MMIO_BASE   + 0x1200000)
 
 extern char _mrom_base;
@@ -40,9 +42,7 @@ extern char _sdram_base;
 
 #define SIM_PADDR_SPACE \
   RANGE(&_flash_base, FLASH_END), \
-  RANGE(&_psram_base, PMEM_END), \
-  RANGE(FB_ADDR, FB_ADDR + 0x200000), \
-  RANGE(MMIO_BASE, MMIO_BASE + 0x1000) /* serial, rtc, screen, keyboard */
+  RANGE(&_psram_base, PMEM_END)
 
 typedef uintptr_t PTE;
 

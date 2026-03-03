@@ -116,7 +116,6 @@
             # Verilog/仿真工具
             # ========================
             verilator
-            verible # SystemVerilog 解析器、Linter、Formatter、语言服务器
             iverilog # Icarus Verilog
             gtkwave # 波形查看器 (可选)
 
@@ -229,7 +228,7 @@
             echo "   NVBOARD_HOME: $NVBOARD_HOME"
             echo "   YOSYS_STA_HOME: $YOSYS_STA_HOME"
             echo ""
-            echo "📦 可用工具: gcc, verilator, verible, gdb, iverilog..."
+            echo "📦 可用工具: gcc, verilator, gdb, iverilog..."
              echo "🔧 RISC-V 工具链: $CROSS_COMPILE"
           '';
 
