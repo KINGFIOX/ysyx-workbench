@@ -32,7 +32,6 @@ CFLAGS += -DFLASH_BASE=$(FLASH_BASE) -DFLASH_SIZE=$(FLASH_SIZE) # flash
 CFLAGS += -DPSRAM_BASE=$(PSRAM_BASE) -DPSRAM_SIZE=$(PSRAM_SIZE) # psram
 CFLAGS += -DSDRAM_BASE=$(SDRAM_BASE) -DSDRAM_SIZE=$(SDRAM_SIZE) # sdram
 
-# 使用 NPC 专用链接脚本
 LDSCRIPTS += $(AM_HOME)/scripts/npc-linker.ld
 LDFLAGS   += --defsym=_mrom_base=$(MROM_BASE) --defsym=_mrom_size=$(MROM_SIZE) # mrom
 LDFLAGS   += --defsym=_sram_base=$(SRAM_BASE) --defsym=_sram_size=$(SRAM_SIZE) # sram

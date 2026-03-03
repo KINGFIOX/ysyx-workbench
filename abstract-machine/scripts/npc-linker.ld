@@ -6,24 +6,45 @@ MEMORY {
 }
 
 SECTIONS {
-  .text : {
+  /* ===== FSBL: execute in place from flash ===== */
+  .text.fsbl : {
     *(entry)
-    *(.text*)
+    *start.o(.text*)
+    *fsbl.o(.text*)
   } > irom
+
+  .rodata.fsbl : {
+    *fsbl.o(.rodata*)
+    *fsbl.o(.srodata*)
+  } > irom
+
+  /* ===== SSBL: stored in flash, FSBL copies to SDRAM ===== */
+  .text.ssbl : {
+    _ssbl_vma_start = .;
+    *ssbl.o(.text*)
+    *ssbl.o(.rodata*)
+    *ssbl.o(.srodata*)
+  } > dram AT> irom
+  _ssbl_lma = LOADADDR(.text.ssbl);
+  _ssbl_vma_end = .;
+
+  /* ===== Application: stored in flash, SSBL copies to SDRAM ===== */
+  .text : {
+    _app_vma_start = .;
+    *(.text*)
+  } > dram AT> irom
+  _app_lma = LOADADDR(.text);
 
   .rodata : {
     *(.rodata*)
     *(.srodata*)
-  } > irom
-  _rodata_end = .;
+  } > dram AT> irom
 
-  .data : AT(_rodata_end) {
-    _data_start = .;
+  .data : {
     *(.data*)
     *(.sdata*)
-    _data_end = .;
-  } > dram
-  _data_lma = LOADADDR(.data);
+  } > dram AT> irom
+  _app_vma_end = .;
 
   .bss : {
     _bss_start = .;
@@ -32,6 +53,7 @@ SECTIONS {
     *(.scommon)
     _bss_end = .;
   } > dram
+
   _stack_top = ALIGN(0x1000);
   . = _stack_top + 0x8000;
   _stack_pointer = .;
