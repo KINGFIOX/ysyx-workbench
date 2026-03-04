@@ -11,6 +11,7 @@
     espresso.url = "github:KINGFIOX/espresso";
     fixdep.url = "github:KINGFIOX/fixdep";
     nvboard.url = "github:KINGFIOX/nvboard";
+    spike.url = "github:KINGFIOX/riscv-isa-sim";
   };
 
   outputs =
@@ -22,6 +23,7 @@
       espresso,
       fixdep,
       nvboard,
+      spike,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -92,7 +94,6 @@
             dtc # spike
             capstone # 反汇编引擎
             kconfig-frontends # Kconfig 配置系统 (提供 kconfig-conf, kconfig-mconf)
-            fixdep.packages.${system}.default # 依赖优化工具，自 fork meson 构建
 
             # ========================
             # NPC (Chisel/Scala) 依赖
@@ -145,6 +146,7 @@
             ccache
           ] ++ [
             espresso.packages.${system}.default
+            fixdep.packages.${system}.default
           ];
 
           # 环境变量设置
@@ -172,7 +174,7 @@
             export AM_HOME="$YSYX_HOME/abstract-machine"
             export NPC_HOME="$YSYX_HOME/npc"
             export NVBOARD_HOME="${nvboard.packages.${system}.default}"
-            export SPIKE_HOME="$YSYX_HOME/tools/spike"
+            export SPIKE_HOME="${spike.packages.${system}.default}"
 
             # 使用 ccache: 通过 PATH prepend 方式，让 gcc/g++ 调用自动走 ccache
             export PATH="${ccacheWrapper}/bin:$PATH"
@@ -220,6 +222,7 @@
             echo "   AM_HOME:      $AM_HOME"
             echo "   NPC_HOME:     $NPC_HOME"
             echo "   NVBOARD_HOME: $NVBOARD_HOME"
+            echo "   SPIKE_HOME: $SPIKE_HOME"
             echo "   YOSYS_STA_HOME: $YOSYS_STA_HOME"
             echo ""
             echo "📦 可用工具: gcc, verilator, gdb, iverilog..."
@@ -228,8 +231,6 @@
 
           # 确保 C/C++ 编译器能找到头文件和库
           hardeningDisable = [ "all" ];
-
-          # NIX_CFLAGS_COMPILE 和 NIX_LDFLAGS 会自动设置
         };
       }
     );
