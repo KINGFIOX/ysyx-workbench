@@ -8,10 +8,9 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # 自 fork：meson 构建，本地开发可 override-input espresso path:/home/wangfiox/Documents/espresso
     espresso.url = "github:KINGFIOX/espresso";
-    # 自 fork：meson 构建，本地开发可 override-input fixdep path:/home/wangfiox/Documents/fixdep
     fixdep.url = "github:KINGFIOX/fixdep";
+    nvboard.url = "github:KINGFIOX/nvboard";
   };
 
   outputs =
@@ -22,6 +21,7 @@
       rust-overlay,
       espresso,
       fixdep,
+      nvboard,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -171,7 +171,7 @@
             export NEMU_HOME="$YSYX_HOME/nemu"
             export AM_HOME="$YSYX_HOME/abstract-machine"
             export NPC_HOME="$YSYX_HOME/npc"
-            export NVBOARD_HOME="$YSYX_HOME/nvboard"
+            export NVBOARD_HOME="${nvboard.packages.${system}.default}"
             export SPIKE_HOME="$YSYX_HOME/tools/spike"
 
             # 使用 ccache: 通过 PATH prepend 方式，让 gcc/g++ 调用自动走 ccache
