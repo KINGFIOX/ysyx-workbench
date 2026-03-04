@@ -1,5 +1,23 @@
 {
   "nodes": {
+    "espresso": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1772648098,
+        "narHash": "sha256-Q9s5ZoPHaX5Do3I87F5GI8ywJblKrh5jkwsDICpWfvg=",
+        "owner": "KINGFIOX",
+        "repo": "espresso",
+        "rev": "24a3642989a0c29e317bd32bb5faed6999eb29ad",
+        "type": "github"
+      },
+      "original": {
+        "owner": "KINGFIOX",
+        "repo": "espresso",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -34,10 +52,27 @@
         "type": "github"
       }
     },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1772542754,
+        "narHash": "sha256-WGV2hy+VIeQsYXpsLjdr4GvHv5eECMISX1zKLTedhdg=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "8c809a146a140c5c8806f13399592dbcb1bb5dc4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
+        "espresso": "espresso",
         "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs",
+        "nixpkgs": "nixpkgs_2",
         "rust-overlay": "rust-overlay"
       }
     },

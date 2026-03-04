@@ -8,6 +8,8 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # 自 fork：meson 构建，本地开发可 override-input espresso path:/home/wangfiox/Documents/espresso
+    espresso.url = "github:KINGFIOX/espresso";
   };
 
   outputs =
@@ -16,6 +18,7 @@
       nixpkgs,
       flake-utils,
       rust-overlay,
+      espresso,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -97,7 +100,6 @@
             metals # mill 不会自动下载
             mill_0_12_4 # 锁定到 0.12.4 版本
             scalafix
-            espresso # QMC 逻辑最小化 (Chisel DecodeTable)
 
             # ========================
             # Verilog/仿真工具
@@ -138,6 +140,8 @@
             ruff # lsp of python
             bear # 生成 compile_commands.json
             ccache
+          ] ++ [
+            espresso.packages.${system}.default # QMC 逻辑最小化 (Chisel DecodeTable)，自 fork meson 构建
           ];
 
           # 环境变量设置
