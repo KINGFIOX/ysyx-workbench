@@ -43,14 +43,6 @@
           echo "/* Empty stub for rv32 ilp32 ABI compatibility */" > $out/include/gnu/stubs-ilp32.h
         '';
 
-        # 创建 ccache 包装目录，通过 PATH prepend 方式使用 ccache
-        ccacheWrapper = pkgs.runCommand "ccache-wrapper" { } ''
-          mkdir -p $out/bin
-          for prog in gcc g++ cc c++; do
-            ln -s ${pkgs.ccache}/bin/ccache $out/bin/$prog
-          done
-        '';
-
         # autocxx / bindgen 需要的 GCC C++ 标准库头文件路径
         gccForLibs = pkgs.gcc-unwrapped;
         gccVersion = gccForLibs.version;
@@ -91,7 +83,6 @@
             ncurses
             llvmPackages.libllvm
             libelf # gelf.h for ftrace
-            dtc # spike
             capstone # 反汇编引擎
             kconfig-frontends # Kconfig 配置系统 (提供 kconfig-conf, kconfig-mconf)
 
@@ -99,11 +90,10 @@
             # NPC (Chisel/Scala) 依赖
             # ========================
             jdk21
-            scala_2_13
             circt # 包含 firtool，Chisel 生成 Verilog 需要
-            metals # mill 不会自动下载
-            mill_0_12_4 # 锁定到 0.12.4 版本
+            metals
             scalafix
+            mill_0_12_4
 
             # ========================
             # Verilog/仿真工具
@@ -137,11 +127,15 @@
             })
 
             # ========================
+            # Python 工具链
+            # ========================
+            python3
+            ruff # lsp of python
+
+            # ========================
             # 实用工具
             # ========================
             git
-            python3
-            ruff # lsp of python
             bear # 生成 compile_commands.json
             ccache
           ] ++ [
@@ -176,17 +170,14 @@
             export NVBOARD_HOME="${nvboard.packages.${system}.default}"
             export SPIKE_HOME="${spike.packages.${system}.default}"
 
-            # 使用 ccache: 通过 PATH prepend 方式，让 gcc/g++ 调用自动走 ccache
-            export PATH="${ccacheWrapper}/bin:$PATH"
-
-            # 主机编译器 (确保 CC/CXX 是主机工具链)
+            # 主机编译器 (确保 CC/CXX 是主机工具链，未启用全局 ccache 以便 Bazel 沙箱可用)
             export CC=gcc
             export CXX=g++
 
             # RISC-V 交叉编译工具链
             export CROSS_COMPILE=riscv32-unknown-linux-gnu-
 
-            # Java 设置 (for Mill/Scala)
+            # Java 设置 (for Bazel/Scala)
             export JAVA_HOME="${pkgs.jdk21}"
 
             # Chisel/CIRCT: 使用系统的 firtool
