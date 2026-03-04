@@ -10,6 +10,8 @@
     };
     # 自 fork：meson 构建，本地开发可 override-input espresso path:/home/wangfiox/Documents/espresso
     espresso.url = "github:KINGFIOX/espresso";
+    # 自 fork：meson 构建，本地开发可 override-input fixdep path:/home/wangfiox/Documents/fixdep
+    fixdep.url = "github:KINGFIOX/fixdep";
   };
 
   outputs =
@@ -19,6 +21,7 @@
       flake-utils,
       rust-overlay,
       espresso,
+      fixdep,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -89,7 +92,7 @@
             dtc # spike
             capstone # 反汇编引擎
             kconfig-frontends # Kconfig 配置系统 (提供 kconfig-conf, kconfig-mconf)
-            fixdep # 依赖优化工具
+            fixdep.packages.${system}.default # 依赖优化工具，自 fork meson 构建
 
             # ========================
             # NPC (Chisel/Scala) 依赖
@@ -141,7 +144,7 @@
             bear # 生成 compile_commands.json
             ccache
           ] ++ [
-            espresso.packages.${system}.default # QMC 逻辑最小化 (Chisel DecodeTable)，自 fork meson 构建
+            espresso.packages.${system}.default
           ];
 
           # 环境变量设置

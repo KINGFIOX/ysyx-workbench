@@ -18,6 +18,24 @@
         "type": "github"
       }
     },
+    "fixdep": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1772649604,
+        "narHash": "sha256-EtFGvIdBVIaZQudAHiVUyOyqlAZZfTaSx3h2JhtaPSQ=",
+        "owner": "KINGFIOX",
+        "repo": "fixdep",
+        "rev": "9d97debb2942b9ce2f6b527f303458f1f53cea51",
+        "type": "github"
+      },
+      "original": {
+        "owner": "KINGFIOX",
+        "repo": "fixdep",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -62,6 +80,21 @@
         "type": "github"
       },
       "original": {
+        "id": "nixpkgs",
+        "ref": "nixos-unstable",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1772542754,
+        "narHash": "sha256-WGV2hy+VIeQsYXpsLjdr4GvHv5eECMISX1zKLTedhdg=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "8c809a146a140c5c8806f13399592dbcb1bb5dc4",
+        "type": "github"
+      },
+      "original": {
         "owner": "NixOS",
         "ref": "nixos-unstable",
         "repo": "nixpkgs",
@@ -71,8 +104,9 @@
     "root": {
       "inputs": {
         "espresso": "espresso",
+        "fixdep": "fixdep",
         "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": "nixpkgs_3",
         "rust-overlay": "rust-overlay"
       }
     },
