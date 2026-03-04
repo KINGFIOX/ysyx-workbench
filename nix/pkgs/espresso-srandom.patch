@@ -1,0 +1,14 @@
+--- a/utility/port.h
++++ b/utility/port.h
+@@ -155,7 +155,11 @@
+ #endif /* lint */
+ 
+ /* a few extras */
++#if defined(__GLIBC__) || defined(__linux__)
++extern void srandom(unsigned int);
++#else
+ extern VOID_HACK srandom();
++#endif
+ extern long random();
+ 
+ #if defined(ultrix3)

@@ -20,6 +20,9 @@
 # Nix Flake
 !flake.nix
 !flake.lock
-!overlay.nix
+!/nix/*
+!/nix/pkgs/*
+!/nix/pkgs/fixdep/*
+!/nix/pkgs/espresso/*
 !.envrc
 .direnv/

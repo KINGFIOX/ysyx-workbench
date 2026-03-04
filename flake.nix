@@ -24,7 +24,7 @@
           inherit system;
           config.allowUnfree = true;
           overlays = [
-            (import ./overlay.nix)
+            (import ./nix/overlay.nix)
             rust-overlay.overlays.default
           ];
         };
@@ -42,20 +42,6 @@
             ln -s ${pkgs.ccache}/bin/ccache $out/bin/$prog
           done
         '';
-
-        # 编译 fixdep 工具 (来自 Linux 内核构建系统)
-        fixdep = pkgs.stdenv.mkDerivation {
-          pname = "fixdep";
-          version = "1.0";
-          src = ./tools/fixdep;
-          buildPhase = ''
-            $CC -O2 -o fixdep fixdep.c
-          '';
-          installPhase = ''
-            mkdir -p $out/bin
-            cp fixdep $out/bin/
-          '';
-        };
 
         # autocxx / bindgen 需要的 GCC C++ 标准库头文件路径
         gccForLibs = pkgs.gcc-unwrapped;
@@ -111,6 +97,7 @@
             metals # mill 不会自动下载
             mill_0_12_4 # 锁定到 0.12.4 版本
             scalafix
+            espresso # QMC 逻辑最小化 (Chisel DecodeTable)
 
             # ========================
             # Verilog/仿真工具

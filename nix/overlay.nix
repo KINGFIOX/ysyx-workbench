@@ -1,4 +1,7 @@
 final: prev: {
+  espresso = final.callPackage ./pkgs/espresso.nix { };
+  fixdep = final.callPackage ./pkgs/fixdep/fixdep.nix { };
+
   mill_0_12_4 = prev.mill.overrideAttrs (oldAttrs: rec {
     version = "0.12.4";
     src = prev.fetchurl {
