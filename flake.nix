@@ -37,10 +37,16 @@
           ];
         };
 
-        # 创建空的 stubs-ilp32.h 来修复 rv32 编译问题
-        stubsIlp32Fix = pkgs.runCommand "stubs-ilp32-fix" { } ''
-          mkdir -p $out/include/gnu
-          echo "/* Empty stub for rv32 ilp32 ABI compatibility */" > $out/include/gnu/stubs-ilp32.h
+        stubsIlp32Fix = pkgs.writeTextDir "include/gnu/stubs-ilp32.h"
+          "/* Empty stub for rv32 ilp32 ABI compatibility */";
+
+        # ccache masquerade: 用编译器同名符号链接指向 ccache，透明加速编译
+        ccacheLinks = pkgs.runCommand "ccache-links" { } ''
+          mkdir -p $out/bin
+          for prog in gcc g++ cc c++ \
+                      riscv32-unknown-linux-gnu-gcc riscv32-unknown-linux-gnu-g++; do
+            ln -s ${pkgs.ccache}/bin/ccache $out/bin/$prog
+          done
         '';
 
         # autocxx / bindgen 需要的 GCC C++ 标准库头文件路径
@@ -110,7 +116,6 @@
             SDL2
             SDL2_image
             SDL2_ttf
-            SDL2_mixer # 可能需要音频支持
             ffmpeg
 
             # ========================
@@ -137,7 +142,7 @@
             # ========================
             git
             bear # 生成 compile_commands.json
-            ccache
+            ccache # CLI 工具 (ccache -s 查看统计等)
           ] ++ [
             espresso.packages.${system}.default
             fixdep.packages.${system}.default
@@ -170,7 +175,9 @@
             export NVBOARD_HOME="${nvboard.packages.${system}.default}"
             export SPIKE_HOME="${spike.packages.${system}.default}"
 
-            # 主机编译器 (确保 CC/CXX 是主机工具链，未启用全局 ccache 以便 Bazel 沙箱可用)
+            # ccache 加速：将 masquerade 目录放在 PATH 最前面
+            export PATH="${ccacheLinks}/bin:$PATH"
+
             export CC=gcc
             export CXX=g++
 
@@ -193,21 +200,6 @@
             # yosys-sta 路径
             export YOSYS_STA_HOME="$YSYX_HOME/yosys-sta"
 
-            # GDB 自动加载安全路径配置
-            # 确保 GDB 可以自动加载项目中的 .gdbinit 文件
-            mkdir -p "$HOME/.config/gdb"
-            if ! grep -q "add-auto-load-safe-path.*$YSYX_HOME" "$HOME/.config/gdb/gdbinit" 2>/dev/null; then
-              echo "add-auto-load-safe-path $YSYX_HOME" >> "$HOME/.config/gdb/gdbinit"
-            fi
-
-            # GDB Dashboard 自动下载/更新
-            # https://github.com/cyrus-and/gdb-dashboard
-            GDBINIT_PATH="$YSYX_HOME/.gdbinit"
-            if [ ! -f "$GDBINIT_PATH" ]; then
-              echo "📥 下载 gdb-dashboard..."
-              curl -fsSL https://raw.githubusercontent.com/cyrus-and/gdb-dashboard/master/.gdbinit -o "$GDBINIT_PATH"
-            fi
-
             echo "🚀 YSYX 开发环境已加载!"
             echo "   NEMU_HOME:    $NEMU_HOME"
             echo "   AM_HOME:      $AM_HOME"
@@ -217,7 +209,7 @@
             echo "   YOSYS_STA_HOME: $YOSYS_STA_HOME"
             echo ""
             echo "📦 可用工具: gcc, verilator, gdb, iverilog..."
-             echo "🔧 RISC-V 工具链: $CROSS_COMPILE"
+            echo "🔧 RISC-V 工具链: $CROSS_COMPILE"
           '';
 
           # 确保 C/C++ 编译器能找到头文件和库
