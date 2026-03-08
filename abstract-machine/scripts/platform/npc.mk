@@ -56,7 +56,7 @@ image: image-dep
 .PHONY: insert-arg
 
 # TODO: run NPC in batch mode by default for automated tests
-NPCFLAGS += -b -l $(shell dirname $(IMAGE).elf)/npc-log.txt
+NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/npc-log.txt
 ifdef NVBOARD
 NPCFLAGS += --nvboard
 endif

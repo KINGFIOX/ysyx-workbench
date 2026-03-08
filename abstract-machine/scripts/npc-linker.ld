@@ -30,22 +30,44 @@ SECTIONS {
   _ssbl_lma = LOADADDR(.text.ssbl);
 
   /* ===== Application: stored in flash, SSBL copies to SDRAM ===== */
+  /* All loadable sections must be in ONE output section to avoid
+     VMA/LMA alignment mismatch when copying from flash to SDRAM. */
   .text : {
     _app_vma_start = .;
     *(.text*)
-  } > dram AT> irom
-  _app_lma = LOADADDR(.text);
-
-  .rodata : {
     *(.rodata*)
     *(.srodata*)
-  } > dram AT> irom
 
-  .data : {
+    /* RT-Thread custom data sections (no-op when RT-Thread is not linked) */
+    /* { */
+    __fsymtab_start = .;
+    KEEP(*(FSymTab))
+    __fsymtab_end = .;
+    . = ALIGN(8);
+    __vsymtab_start = .;
+    KEEP(*(VSymTab))
+    __vsymtab_end = .;
+    . = ALIGN(8);
+    __rt_init_start = .;
+    KEEP(*(SORT(.rti_fn*)))
+    __rt_init_end = .;
+    . = ALIGN(8);
+    __rt_utest_tc_tab_start = .;
+    KEEP(*(UtestTcTab))
+    __rt_utest_tc_tab_end = .;
+    . = ALIGN(8);
+    __am_apps_data_start = .;
+    *(__am_apps.data*)
+    *(__am_apps.sdata*)
+    __am_apps_data_end = .;
+    . = ALIGN(8);
+    /* } */
+
     *(.data*)
     *(.sdata*)
+    _app_vma_end = .;
   } > dram AT> irom
-  _app_vma_end = .;
+  _app_lma = LOADADDR(.text);
 
   .bss : {
     _bss_start = .;
