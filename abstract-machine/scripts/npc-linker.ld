@@ -24,9 +24,10 @@ SECTIONS {
     *ssbl.o(.text*)
     *ssbl.o(.rodata*)
     *ssbl.o(.srodata*)
+    _ssbl_vma_end = .;
+    . = ALIGN(64);
   } > dram AT> irom
   _ssbl_lma = LOADADDR(.text.ssbl);
-  _ssbl_vma_end = .;
 
   /* ===== Application: stored in flash, SSBL copies to SDRAM ===== */
   .text : {
