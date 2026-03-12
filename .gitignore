@@ -12,6 +12,7 @@
 !/scripts/*
 !Makefile
 !README.md
+!LICENSE
 !.gitignore
 !init.sh
 !/FE/*
@@ -24,3 +25,4 @@
 !/nix/pkgs/*
 !.envrc
 .direnv/
+

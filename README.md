@@ -1,9 +1,5 @@
-# "一生一芯"工程项目
+# README
 
-这是"一生一芯"的工程项目. 通过运行
-```bash
-bash init.sh subproject-name
-```
-进行初始化, 具体请参考[实验讲义][lecture note].
+## License
 
-[lecture note]: https://ysyx.oscc.cc/docs/
+本项目采用 [GNU General Public License v2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html) 开源协议。详见 [LICENSE](LICENSE) 文件。
