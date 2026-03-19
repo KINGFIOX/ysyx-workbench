@@ -65,7 +65,6 @@
             # ========================
             gnumake
             cmake
-            meson
             ninja
             pkg-config
             autoconf
@@ -199,6 +198,8 @@
 
             # yosys-sta 路径
             export YOSYS_STA_HOME="$YSYX_HOME/yosys-sta"
+
+            export ARCH=riscv32-npc
 
             echo "🚀 YSYX 开发环境已加载!"
             echo "   NEMU_HOME:    $NEMU_HOME"
