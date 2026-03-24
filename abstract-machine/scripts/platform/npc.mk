@@ -20,10 +20,8 @@ AM_SRCS += platform/npc/ioe/timer.c \
 CFLAGS    += -fdata-sections -ffunction-sections
 CFLAGS    += -I$(AM_HOME)/am/src/platform/npc/include
 
-# 从 NPC Meson 配置读取地址 (优先 meson introspect，否则 meson_options.txt 默认值)
-NPC_SOC_CONFIG_MK := $(AM_HOME)/.npc-soc-config.mk
-$(shell NPC_HOME=$(NPC_HOME) python3 $(AM_HOME)/tools/get-npc-soc-config.py > $(NPC_SOC_CONFIG_MK) 2>/dev/null)
--include $(NPC_SOC_CONFIG_MK)
+NPC_SOC_CONFIG_MK := $(AM_HOME)/tools/npc-soc-config.mk
+include $(NPC_SOC_CONFIG_MK)
 
 # 将地址配置传递给 C 程序
 CFLAGS += -DMROM_BASE=$(MROM_BASE) -DMROM_SIZE=$(MROM_SIZE) # mrom
@@ -56,7 +54,7 @@ image: image-dep
 .PHONY: insert-arg
 
 # TODO: run NPC in batch mode by default for automated tests
-NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/npc-log.txt
+NPCFLAGS += -b -l $(shell dirname $(IMAGE).elf)/npc-log.txt
 ifdef NVBOARD
 NPCFLAGS += --nvboard
 endif

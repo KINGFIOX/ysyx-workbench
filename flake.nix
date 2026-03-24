@@ -66,6 +66,7 @@
             gnumake
             cmake
             ninja
+            cmake
             pkg-config
             autoconf
             automake
@@ -168,6 +169,7 @@
           shellHook = ''
             # 设置项目根目录
             export YSYX_HOME="$(pwd)"
+            export CCACHE_DIR="$YSYX_HOME/.ccache"
             export NEMU_HOME="$YSYX_HOME/nemu"
             export AM_HOME="$YSYX_HOME/abstract-machine"
             export NPC_HOME="$YSYX_HOME/npc"
