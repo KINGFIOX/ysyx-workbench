@@ -1,6 +1,3 @@
-[submodule "yosys-sta"]
-	path = yosys-sta
-	url = git@github.com:KINGFIOX/yosys-sta.git
 [submodule "nvboard"]
 	path = nvboard
 	url = git@github.com:KINGFIOX/nvboard.git

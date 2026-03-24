@@ -40,20 +40,6 @@
         stubsIlp32Fix = pkgs.writeTextDir "include/gnu/stubs-ilp32.h"
           "/* Empty stub for rv32 ilp32 ABI compatibility */";
 
-        # ccache masquerade: 用编译器同名符号链接指向 ccache，透明加速编译
-        ccacheLinks = pkgs.runCommand "ccache-links" { } ''
-          mkdir -p $out/bin
-          for prog in gcc g++ cc c++ \
-                      riscv32-unknown-linux-gnu-gcc riscv32-unknown-linux-gnu-g++; do
-            ln -s ${pkgs.ccache}/bin/ccache $out/bin/$prog
-          done
-        '';
-
-        # autocxx / bindgen 需要的 GCC C++ 标准库头文件路径
-        gccForLibs = pkgs.gcc-unwrapped;
-        gccVersion = gccForLibs.version;
-        gccArch = "x86_64-unknown-linux-gnu";
-
       in
       {
         devShells.default = pkgs.mkShell {
@@ -74,7 +60,7 @@
             # ========================
             # C/C++ 工具链
             # ========================
-            gcc
+            clang
             clang-tools
             gdb
             lldb
@@ -83,8 +69,6 @@
             # ========================
             # NEMU 依赖
             # ========================
-            flex
-            bison
             readline
             ncurses
             llvmPackages.libllvm
@@ -157,30 +141,17 @@
           # Verilator: include 路径 (供 build.rs 使用)
           VERILATOR_ROOT = "${pkgs.verilator}/share/verilator";
 
-          # autocxx / bindgen: GCC C++ 标准库头文件路径
-          BINDGEN_EXTRA_CLANG_ARGS = builtins.toString [
-            "-isystem${gccForLibs}/include/c++/${gccVersion}"
-            "-isystem${gccForLibs}/include/c++/${gccVersion}/${gccArch}"
-            "-isystem${gccForLibs}/lib/gcc/${gccArch}/${gccVersion}/include"
-            "-isystem${gccForLibs}/lib/gcc/${gccArch}/${gccVersion}/include-fixed"
-            "-isystem${pkgs.glibc.dev}/include"
-          ];
-
           shellHook = ''
             # 设置项目根目录
             export YSYX_HOME="$(pwd)"
-            export CCACHE_DIR="$YSYX_HOME/.ccache"
             export NEMU_HOME="$YSYX_HOME/nemu"
             export AM_HOME="$YSYX_HOME/abstract-machine"
             export NPC_HOME="$YSYX_HOME/npc"
             export NVBOARD_HOME="${nvboard.packages.${system}.default}"
             export SPIKE_HOME="${spike.packages.${system}.default}"
 
-            # ccache 加速：将 masquerade 目录放在 PATH 最前面
-            export PATH="${ccacheLinks}/bin:$PATH"
-
-            export CC=gcc
-            export CXX=g++
+            export CC=clang
+            export CXX=clang++
 
             # RISC-V 交叉编译工具链
             export CROSS_COMPILE=riscv32-unknown-linux-gnu-
@@ -198,9 +169,6 @@
             export CARGO_HOME="$NPC_HOME/.cargo"
             export PATH="$CARGO_HOME:$PATH"
 
-            # yosys-sta 路径
-            export YOSYS_STA_HOME="$YSYX_HOME/yosys-sta"
-
             export ARCH=riscv32-npc
 
             echo "🚀 YSYX 开发环境已加载!"
@@ -209,14 +177,11 @@
             echo "   NPC_HOME:     $NPC_HOME"
             echo "   NVBOARD_HOME: $NVBOARD_HOME"
             echo "   SPIKE_HOME: $SPIKE_HOME"
-            echo "   YOSYS_STA_HOME: $YOSYS_STA_HOME"
             echo ""
             echo "📦 可用工具: gcc, verilator, gdb, iverilog..."
             echo "🔧 RISC-V 工具链: $CROSS_COMPILE"
           '';
 
-          # 确保 C/C++ 编译器能找到头文件和库
-          hardeningDisable = [ "all" ];
         };
       }
     );
