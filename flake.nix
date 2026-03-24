@@ -1,5 +1,5 @@
 {
-  description = "YSYX (一生一芯) 开发环境";
+  description = "YSYX (one student one chip) develop environments";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -36,8 +36,6 @@
             rust-overlay.overlays.default
           ];
         };
-
-        inherit (pkgs) lib;
 
         stubsIlp32Fix = pkgs.writeTextDir "include/gnu/stubs-ilp32.h"
           "/* Empty stub for rv32 ilp32 ABI compatibility */";
@@ -85,8 +83,6 @@
           gtkwave
         ];
 
-        # sdl2-compat (SDL3 backend) 与 gcc-11.4.0 的 glibc 版本不兼容，
-        # 使用旧版原生 SDL2
         sdlDeps = with pkgs; [
           SDL2
           SDL2_image
@@ -125,7 +121,7 @@
         devShells.default = pkgs.mkShell {
           name = "ysyx-dev";
 
-          packages = lib.concatLists [
+          packages = pkgs.lib.concatLists [
             buildTools
             cppToolchain
             nemuDeps
@@ -139,7 +135,7 @@
             externalPkgs
           ];
 
-          # mkShell 会将这些属性自动导出为同名环境变量
+          # mkShell would export the same name of env var to shell
           STUBS_ILP32_FIX = "${stubsIlp32Fix}/include";
           LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
           VERILATOR_ROOT = "${pkgs.verilator}/share/verilator";
@@ -163,7 +159,7 @@
             export CARGO_HOME="$NPC_HOME/.cargo"
             export PATH="$CARGO_HOME/bin:$PATH"
 
-            echo "🚀 YSYX 开发环境已加载!"
+            echo "🚀 YSYX develop environment loaded!"
             echo "   NEMU_HOME:    $NEMU_HOME"
             echo "   AM_HOME:      $AM_HOME"
             echo "   NPC_HOME:     $NPC_HOME"
