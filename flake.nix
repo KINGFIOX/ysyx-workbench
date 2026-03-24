@@ -37,152 +37,139 @@
           ];
         };
 
+        inherit (pkgs) lib;
+
         stubsIlp32Fix = pkgs.writeTextDir "include/gnu/stubs-ilp32.h"
           "/* Empty stub for rv32 ilp32 ABI compatibility */";
+
+        buildTools = with pkgs; [
+          gnumake
+          cmake
+          ninja
+          pkg-config
+          autoconf
+          automake
+        ];
+
+        cppToolchain = with pkgs; [
+          clang
+          clang-tools
+          gdb
+          lldb
+          bear
+          scons
+        ];
+
+        nemuDeps = with pkgs; [
+          flex
+          bison
+          readline
+          ncurses
+          llvmPackages.libllvm
+          libelf
+          capstone
+          kconfig-frontends
+        ];
+
+        chiselDeps = with pkgs; [
+          jdk21
+          circt
+          metals
+          scalafix
+          mill_0_12_4
+        ];
+
+        verilogTools = with pkgs; [
+          verilator
+          iverilog
+          gtkwave
+        ];
+
+        # sdl2-compat (SDL3 backend) 与 gcc-11.4.0 的 glibc 版本不兼容，
+        # 使用旧版原生 SDL2
+        sdlDeps = with pkgs; [
+          SDL2
+          SDL2_image
+          SDL2_ttf
+          ffmpeg
+        ];
+
+        riscvToolchain = [
+          pkgs.pkgsCross.riscv32.buildPackages.gcc
+          stubsIlp32Fix
+        ];
+
+        rustToolchain = [
+          (pkgs.rust-bin.stable.latest.default.override {
+            extensions = [ "rust-src" "rust-analyzer" ];
+          })
+        ];
+
+        pythonTools = with pkgs; [
+          python3
+          ruff
+        ];
+
+        miscTools = with pkgs; [
+          git
+          ccache
+        ];
+
+        externalPkgs = [
+          espresso.packages.${system}.default
+          fixdep.packages.${system}.default
+        ];
 
       in
       {
         devShells.default = pkgs.mkShell {
           name = "ysyx-dev";
 
-          packages = with pkgs; [
-            # ========================
-            # 基础构建工具
-            # ========================
-            gnumake
-            cmake
-            ninja
-            cmake
-            pkg-config
-            autoconf
-            automake
-
-            # ========================
-            # C/C++ 工具链
-            # ========================
-            clang
-            clang-tools
-            gdb
-            lldb
-            bear
-            scons
-
-            # ========================
-            # NEMU 依赖
-            # ========================
-            readline
-            ncurses
-            llvmPackages.libllvm
-            libelf # gelf.h for ftrace
-            capstone # 反汇编引擎
-            kconfig-frontends # Kconfig 配置系统 (提供 kconfig-conf, kconfig-mconf)
-
-            # ========================
-            # NPC (Chisel/Scala) 依赖
-            # ========================
-            jdk21
-            circt # 包含 firtool，Chisel 生成 Verilog 需要
-            metals
-            scalafix
-            mill_0_12_4
-
-            # ========================
-            # Verilog/仿真工具
-            # ========================
-            verilator
-            iverilog # Icarus Verilog
-            gtkwave # 波形查看器 (可选)
-
-            # ========================
-            # NVBoard / 图形界面依赖
-            # ========================
-            # 使用旧版 SDL2（原生），而不是 nixpkgs-unstable 的 sdl2-compat（需要 SDL3）
-            # sdl2-compat 与 gcc-11.4.0 的 glibc 版本不兼容
-            SDL2
-            SDL2_image
-            SDL2_ttf
-            ffmpeg
-
-            # ========================
-            # RISC-V 交叉编译工具链
-            # ========================
-            pkgsCross.riscv32.buildPackages.gcc
-            stubsIlp32Fix # 修复缺少的 stubs-ilp32.h
-
-            # ========================
-            # Rust 工具链 (via rust-overlay)
-            # ========================
-            (rust-bin.stable.latest.default.override {
-              extensions = [ "rust-src" "rust-analyzer" ];
-            })
-
-            # ========================
-            # Python 工具链
-            # ========================
-            python3
-            ruff # lsp of python
-
-            # ========================
-            # 实用工具
-            # ========================
-            git
-            bear # 生成 compile_commands.json
-            ccache # CLI 工具 (ccache -s 查看统计等)
-          ] ++ [
-            espresso.packages.${system}.default
-            fixdep.packages.${system}.default
+          packages = lib.concatLists [
+            buildTools
+            cppToolchain
+            nemuDeps
+            chiselDeps
+            verilogTools
+            sdlDeps
+            riscvToolchain
+            rustToolchain
+            pythonTools
+            miscTools
+            externalPkgs
           ];
 
-          # 环境变量设置
+          # mkShell 会将这些属性自动导出为同名环境变量
           STUBS_ILP32_FIX = "${stubsIlp32Fix}/include";
-
-          # autocxx / bindgen: libclang 路径
           LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
-
-          # Verilator: include 路径 (供 build.rs 使用)
           VERILATOR_ROOT = "${pkgs.verilator}/share/verilator";
+          NVBOARD_HOME = nvboard.packages.${system}.default;
+          SPIKE_HOME = spike.packages.${system}.default;
+          JAVA_HOME = pkgs.jdk21;
+          CHISEL_FIRTOOL_PATH = "${pkgs.circt}/bin";
+          SDL2_CONFIG = "${pkgs.SDL2}/bin/sdl2-config";
+          CROSS_COMPILE = "riscv32-unknown-linux-gnu-";
+          ARCH = "riscv32-npc";
 
           shellHook = ''
-            # 设置项目根目录
+            export CC=clang
+            export CXX=clang++
+
             export YSYX_HOME="$(pwd)"
             export NEMU_HOME="$YSYX_HOME/nemu"
             export AM_HOME="$YSYX_HOME/abstract-machine"
             export NPC_HOME="$YSYX_HOME/npc"
-            export NVBOARD_HOME="${nvboard.packages.${system}.default}"
-            export SPIKE_HOME="${spike.packages.${system}.default}"
 
-            export CC=clang
-            export CXX=clang++
-
-            # RISC-V 交叉编译工具链
-            export CROSS_COMPILE=riscv32-unknown-linux-gnu-
-
-            # Java 设置 (for Bazel/Scala)
-            export JAVA_HOME="${pkgs.jdk21}"
-
-            # Chisel/CIRCT: 使用系统的 firtool
-            export CHISEL_FIRTOOL_PATH="${pkgs.circt}/bin"
-
-            # SDL2 配置 (使用旧版 SDL2)
-            export SDL2_CONFIG="${pkgs.SDL2}/bin/sdl2-config"
-
-            # Rust/Cargo: 避免污染家目录
             export CARGO_HOME="$NPC_HOME/.cargo"
-            export PATH="$CARGO_HOME:$PATH"
-
-            export ARCH=riscv32-npc
+            export PATH="$CARGO_HOME/bin:$PATH"
 
             echo "🚀 YSYX 开发环境已加载!"
             echo "   NEMU_HOME:    $NEMU_HOME"
             echo "   AM_HOME:      $AM_HOME"
             echo "   NPC_HOME:     $NPC_HOME"
             echo "   NVBOARD_HOME: $NVBOARD_HOME"
-            echo "   SPIKE_HOME: $SPIKE_HOME"
-            echo ""
-            echo "📦 可用工具: gcc, verilator, gdb, iverilog..."
-            echo "🔧 RISC-V 工具链: $CROSS_COMPILE"
+            echo "   SPIKE_HOME:   $SPIKE_HOME"
           '';
-
         };
       }
     );
