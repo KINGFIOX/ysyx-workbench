@@ -65,6 +65,7 @@
             gdb
             lldb
             bear
+            scons
 
             # ========================
             # NEMU 依赖
