@@ -349,7 +349,7 @@ uint32_t __inline __builtin_clzll(uint64_t value) {
 
 #include <am.h>
 
-#if !defined(__ARCH_RISCV64_MYCPU)
+#if !defined(__ARCH_RISCV64_NPC) && !defined(__ARCH_RISCV64_MYCPU)
 /* Returns: a / b */
 
 COMPILER_RT_ABI di_int

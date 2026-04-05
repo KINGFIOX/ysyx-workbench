@@ -24,18 +24,16 @@ NPC_SOC_CONFIG_MK := $(AM_HOME)/tools/npc-soc-config.mk
 include $(NPC_SOC_CONFIG_MK)
 
 # 将地址配置传递给 C 程序
-CFLAGS += -DMROM_BASE=$(MROM_BASE) -DMROM_SIZE=$(MROM_SIZE) # mrom
-CFLAGS += -DSRAM_BASE=$(SRAM_BASE) -DSRAM_SIZE=$(SRAM_SIZE) # sram
-CFLAGS += -DFLASH_BASE=$(FLASH_BASE) -DFLASH_SIZE=$(FLASH_SIZE) # flash
-CFLAGS += -DPSRAM_BASE=$(PSRAM_BASE) -DPSRAM_SIZE=$(PSRAM_SIZE) # psram
-CFLAGS += -DSDRAM_BASE=$(SDRAM_BASE) -DSDRAM_SIZE=$(SDRAM_SIZE) # sdram
+CFLAGS += -DSRAM_BASE=$(SRAM_BASE) -DSRAM_SIZE=$(SRAM_SIZE)
+CFLAGS += -DFLASH_BASE=$(FLASH_BASE) -DFLASH_SIZE=$(FLASH_SIZE)
+CFLAGS += -DSDRAM_BASE=$(SDRAM_BASE) -DSDRAM_SIZE=$(SDRAM_SIZE)
+CFLAGS += -DCLINT_BASE=$(CLINT_BASE) -DCLINT_SIZE=$(CLINT_SIZE)
+CFLAGS += -DPLIC_BASE=$(PLIC_BASE) -DPLIC_SIZE=$(PLIC_SIZE)
 
 LDSCRIPTS += $(AM_HOME)/scripts/npc-linker.ld
-LDFLAGS   += --defsym=_mrom_base=$(MROM_BASE) --defsym=_mrom_size=$(MROM_SIZE) # mrom
-LDFLAGS   += --defsym=_sram_base=$(SRAM_BASE) --defsym=_sram_size=$(SRAM_SIZE) # sram
-LDFLAGS   += --defsym=_flash_base=$(FLASH_BASE) --defsym=_flash_size=$(FLASH_SIZE) # flash
-LDFLAGS   += --defsym=_psram_base=$(PSRAM_BASE) --defsym=_psram_size=$(PSRAM_SIZE) # psram
-LDFLAGS   += --defsym=_sdram_base=$(SDRAM_BASE) --defsym=_sdram_size=$(SDRAM_SIZE) # sdram
+LDFLAGS   += --defsym=_sram_base=$(SRAM_BASE) --defsym=_sram_size=$(SRAM_SIZE)
+LDFLAGS   += --defsym=_flash_base=$(FLASH_BASE) --defsym=_flash_size=$(FLASH_SIZE)
+LDFLAGS   += --defsym=_sdram_base=$(SDRAM_BASE) --defsym=_sdram_size=$(SDRAM_SIZE)
 LDFLAGS   += --gc-sections -e _start
 LDFLAGS   += --orphan-handling=warn
 
