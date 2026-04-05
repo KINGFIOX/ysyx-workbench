@@ -36,8 +36,6 @@
           ];
         };
 
-        stubsIlp32Fix = pkgs.writeTextDir "include/gnu/stubs-ilp32.h"
-          "/* Empty stub for rv32 ilp32 ABI compatibility */";
 
         buildTools = with pkgs; [
           gnumake
@@ -90,8 +88,7 @@
         ];
 
         riscvToolchain = [
-          pkgs.pkgsCross.riscv32.buildPackages.gcc
-          stubsIlp32Fix
+          pkgs.pkgsCross.riscv64-embedded.buildPackages.gcc
         ];
 
         rustToolchain = [
@@ -135,7 +132,6 @@
           ];
 
           # mkShell would export the same name of env var to shell
-          STUBS_ILP32_FIX = "${stubsIlp32Fix}/include";
           LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
           VERILATOR_ROOT = "${pkgs.verilator}/share/verilator";
           NVBOARD_HOME = nvboard.packages.${system}.default;
@@ -143,8 +139,8 @@
           JAVA_HOME = pkgs.jdk21;
           CHISEL_FIRTOOL_PATH = "${pkgs.circt}/bin";
           SDL2_CONFIG = "${pkgs.SDL2}/bin/sdl2-config";
-          CROSS_COMPILE = "riscv32-unknown-linux-gnu-";
-          ARCH = "riscv32-npc";
+          CROSS_COMPILE = "riscv64-none-elf-";
+          ARCH = "riscv64-npc";
 
           shellHook = ''
             export CC=clang
