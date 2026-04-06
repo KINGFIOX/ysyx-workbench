@@ -55,17 +55,6 @@
           scons
         ];
 
-        nemuDeps = with pkgs; [
-          flex
-          bison
-          readline
-          ncurses
-          llvmPackages.libllvm
-          libelf
-          capstone
-          kconfig-frontends
-        ];
-
         chiselDeps = with pkgs; [
           jdk21
           circt
@@ -85,6 +74,10 @@
           SDL2_image
           SDL2_ttf
           ffmpeg
+        ];
+
+        nemuDeps = with pkgs; [
+          abseil-cpp
         ];
 
         riscvToolchain = [

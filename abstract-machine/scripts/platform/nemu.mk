@@ -1,20 +1,20 @@
-# NEMU 平台 Makefile
+# NEMU platform Makefile (spike + nvboard)
+# Compatible with NEMU MMIO protocol
 
 CFLAGS += -DPLATFORM_NEMU
 
-# NEMU 源文件
-AM_SRCS += platform/sim/trm.c \
-           platform/sim/ioe/ioe.c
+AM_SRCS += platform/sim/ioe/ioe.c
 
-# NEMU 使用 sim/ 下的完整实现
-AM_SRCS += platform/sim/ioe/timer.c \
-           platform/sim/ioe/input.c \
-           platform/sim/ioe/gpu.c \
-           platform/sim/ioe/audio.c \
-           platform/sim/ioe/disk.c
+AM_SRCS += platform/npc/ioe/timer.c \
+           platform/npc/ioe/input.c \
+           platform/npc/ioe/gpu.c \
+           platform/npc/ioe/audio.c \
+           platform/npc/ioe/disk.c \
+		   platform/npc/ioe/trm.c
 
 CFLAGS    += -fdata-sections -ffunction-sections
-CFLAGS    += -I$(AM_HOME)/am/src/platform/sim/include
+CFLAGS    += -I$(AM_HOME)/am/src/platform/npc/include
+
 LDSCRIPTS += $(AM_HOME)/scripts/nemu-linker.ld
 LDFLAGS   += --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
@@ -33,11 +33,13 @@ image: image-dep
 
 .PHONY: insert-arg
 
-# run NEMU in batch mode by default for automated tests
-NEMUFLAGS += -b -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
+NEMUFLAGS += --batch --log=$(shell dirname $(IMAGE).elf)/nemu-log.txt
+ifdef NVBOARD
+NEMUFLAGS += --nvboard
+endif
 
 run: insert-arg
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
+	$(NEMU_HOME)/build/nemu $(NEMUFLAGS) --image $(IMAGE).bin
 
 gdb: insert-arg
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
+	$(NEMU_HOME)/build/nemu $(NEMUFLAGS) --image $(IMAGE).bin
