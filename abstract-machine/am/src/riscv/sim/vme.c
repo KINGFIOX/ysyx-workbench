@@ -1,5 +1,5 @@
 #include <am.h>
-#include <sim.h>
+#include <npc.h>
 #include <klib.h>
 
 static AddrSpace kas = {};

@@ -84,10 +84,11 @@
           pkgs.pkgsCross.riscv64-embedded.buildPackages.gcc
         ];
 
-        rustToolchain = [
-          (pkgs.rust-bin.stable.latest.default.override {
+        rustToolchain = with pkgs; [
+          (rust-bin.stable.latest.default.override {
             extensions = [ "rust-src" "rust-analyzer" ];
           })
+          zlib
         ];
 
         pythonTools = with pkgs; [

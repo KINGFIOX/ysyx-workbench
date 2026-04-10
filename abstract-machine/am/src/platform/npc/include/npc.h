@@ -34,9 +34,16 @@ extern char _sdram_base;
 
 #define PMEM_END SDRAM_END
 
+#ifdef PLATFORM_NEMU
+#define SIM_PADDR_SPACE \
+  RANGE(&_flash_base, FLASH_END), \
+  RANGE(&_sdram_base, PMEM_END), \
+  RANGE(FB_ADDR, FB_ADDR + VGA_SIZE)
+#else
 #define SIM_PADDR_SPACE \
   RANGE(&_flash_base, FLASH_END), \
   RANGE(&_sdram_base, PMEM_END)
+#endif
 
 typedef uintptr_t PTE;
 
