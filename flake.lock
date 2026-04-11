@@ -184,11 +184,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775829810,
-        "narHash": "sha256-/cy4XJxjVNJEJJI1P8QZQ0TlPh+LoEpAFHCYsmeiePk=",
+        "lastModified": 1775978156,
+        "narHash": "sha256-Y9/hiNZ5DMiXKtXZqrnbREKB6H6ghYGTbXrFm07s+Lk=",
         "owner": "KINGFIOX",
         "repo": "nvboard",
-        "rev": "9babbc87b9201623aec1cdcb661c88094281b0a3",
+        "rev": "23e102d3b9b18562ae1a04ece0243a36f3cbd980",
         "type": "github"
       },
       "original": {
@@ -215,11 +215,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775892855,
-        "narHash": "sha256-f9TFazm7yCQ2l/UtUGv+Ch7ZVgWb79AhXqpLEY04kws=",
+        "lastModified": 1775916528,
+        "narHash": "sha256-y8yo0W2jQxZXucEdjAV5mJt2UXUn/mJGW+fDPxvLJ7U=",
         "owner": "KINGFIOX",
         "repo": "riscv-isa-sim",
-        "rev": "360fe9ef7da28dd5110764aa9de122002525d18f",
+        "rev": "420e25b745a5ce48f730940a1edf543d44e493b3",
         "type": "github"
       },
       "original": {

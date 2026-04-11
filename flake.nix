@@ -145,6 +145,7 @@
             export NEMU_HOME="$YSYX_HOME/nemu"
             export AM_HOME="$YSYX_HOME/abstract-machine"
             export NPC_HOME="$YSYX_HOME/npc"
+            export XV6_HOME="$YSYX_HOME/xv6"
 
             echo "🚀 YSYX develop environment loaded!"
             echo "   NEMU_HOME:    $NEMU_HOME"
