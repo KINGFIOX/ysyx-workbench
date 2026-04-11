@@ -4,10 +4,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    rust-overlay = {
-      url = "github:oxalica/rust-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     espresso.url = "github:KINGFIOX/espresso";
     fixdep.url = "github:KINGFIOX/fixdep";
     nvboard = {
@@ -22,7 +18,6 @@
       self,
       nixpkgs,
       flake-utils,
-      rust-overlay,
       espresso,
       fixdep,
       nvboard,
@@ -35,7 +30,6 @@
           config.allowUnfree = true;
           overlays = [
             (import ./nix/overlay.nix)
-            rust-overlay.overlays.default
           ];
         };
 
@@ -83,15 +77,17 @@
           abseil-cpp
         ];
 
-        riscvToolchain = [
-          pkgs.pkgsCross.riscv64-embedded.buildPackages.gcc
+        npcDeps = with pkgs; [
+          capstone
+          flex
+          bison
+          readline
+          elfio
+          zlib
         ];
 
-        rustToolchain = with pkgs; [
-          (rust-bin.stable.latest.default.override {
-            extensions = [ "rust-src" "rust-analyzer" ];
-          })
-          zlib
+        riscvToolchain = [
+          pkgs.pkgsCross.riscv64-embedded.buildPackages.gcc
         ];
 
         pythonTools = with pkgs; [
@@ -119,10 +115,10 @@
             cppToolchain
             nemuDeps
             chiselDeps
+            npcDeps
             verilogTools
             sdlDeps
             riscvToolchain
-            rustToolchain
             pythonTools
             miscTools
             externalPkgs
@@ -147,9 +143,6 @@
             export NEMU_HOME="$YSYX_HOME/nemu"
             export AM_HOME="$YSYX_HOME/abstract-machine"
             export NPC_HOME="$YSYX_HOME/npc"
-
-            export CARGO_HOME="$NPC_HOME/.cargo"
-            export PATH="$CARGO_HOME/bin:$PATH"
 
             echo "🚀 YSYX develop environment loaded!"
             echo "   NEMU_HOME:    $NEMU_HOME"
