@@ -10,7 +10,10 @@
       url = "github:KINGFIOX/nvboard";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    spike.url = "github:KINGFIOX/riscv-isa-sim";
+    spike = {
+      url = "github:KINGFIOX/riscv-isa-sim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -78,7 +81,8 @@
         ];
 
         npcDeps = with pkgs; [
-          capstone
+          spike.packages.${system}.default
+          nvboard.packages.${system}.default
           flex
           bison
           readline
@@ -127,8 +131,6 @@
           # mkShell would export the same name of env var to shell
           LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
           VERILATOR_ROOT = "${pkgs.verilator}/share/verilator";
-          NVBOARD_HOME = nvboard.packages.${system}.default;
-          SPIKE_HOME = spike.packages.${system}.default;
           JAVA_HOME = pkgs.jdk21;
           CHISEL_FIRTOOL_PATH = "${pkgs.circt}/bin";
           SDL2_CONFIG = "${pkgs.SDL2}/bin/sdl2-config";
@@ -148,8 +150,6 @@
             echo "   NEMU_HOME:    $NEMU_HOME"
             echo "   AM_HOME:      $AM_HOME"
             echo "   NPC_HOME:     $NPC_HOME"
-            echo "   NVBOARD_HOME: $NVBOARD_HOME"
-            echo "   SPIKE_HOME:   $SPIKE_HOME"
           '';
         };
       }

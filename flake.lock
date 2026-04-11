@@ -176,22 +176,6 @@
         "type": "github"
       }
     },
-    "nixpkgs_4": {
-      "locked": {
-        "lastModified": 1775036866,
-        "narHash": "sha256-ZojAnPuCdy657PbTq5V0Y+AHKhZAIwSIT2cb8UgAz/U=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "6201e203d09599479a3b3450ed24fa81537ebc4e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "nvboard": {
       "inputs": {
         "flake-utils": "flake-utils_4",
@@ -226,14 +210,16 @@
     "spike": {
       "inputs": {
         "flake-utils": "flake-utils_5",
-        "nixpkgs": "nixpkgs_4"
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
-        "lastModified": 1775304362,
-        "narHash": "sha256-xI9wvXDqyKx3ZyvjcOyxSZuCXIE78sMvioFpM6ZnWHs=",
+        "lastModified": 1775892855,
+        "narHash": "sha256-f9TFazm7yCQ2l/UtUGv+Ch7ZVgWb79AhXqpLEY04kws=",
         "owner": "KINGFIOX",
         "repo": "riscv-isa-sim",
-        "rev": "6a5baedef216db2d3b855514b57dfed376c1af92",
+        "rev": "360fe9ef7da28dd5110764aa9de122002525d18f",
         "type": "github"
       },
       "original": {
