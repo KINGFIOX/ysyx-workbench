@@ -178,22 +178,6 @@
     },
     "nixpkgs_4": {
       "locked": {
-        "lastModified": 1772542754,
-        "narHash": "sha256-WGV2hy+VIeQsYXpsLjdr4GvHv5eECMISX1zKLTedhdg=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "8c809a146a140c5c8806f13399592dbcb1bb5dc4",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_5": {
-      "locked": {
         "lastModified": 1775036866,
         "narHash": "sha256-ZojAnPuCdy657PbTq5V0Y+AHKhZAIwSIT2cb8UgAz/U=",
         "owner": "NixOS",
@@ -211,14 +195,16 @@
     "nvboard": {
       "inputs": {
         "flake-utils": "flake-utils_4",
-        "nixpkgs": "nixpkgs_4"
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
-        "lastModified": 1775827921,
-        "narHash": "sha256-ZDcdiVXq6P2tgDxm26BoedwN1O80ipOgvRndG702RfQ=",
+        "lastModified": 1775829810,
+        "narHash": "sha256-/cy4XJxjVNJEJJI1P8QZQ0TlPh+LoEpAFHCYsmeiePk=",
         "owner": "KINGFIOX",
         "repo": "nvboard",
-        "rev": "f9377785064352ed1741ff63ddf4c694d378c07a",
+        "rev": "9babbc87b9201623aec1cdcb661c88094281b0a3",
         "type": "github"
       },
       "original": {
@@ -261,7 +247,7 @@
     "spike": {
       "inputs": {
         "flake-utils": "flake-utils_5",
-        "nixpkgs": "nixpkgs_5"
+        "nixpkgs": "nixpkgs_4"
       },
       "locked": {
         "lastModified": 1775304362,

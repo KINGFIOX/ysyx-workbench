@@ -10,7 +10,10 @@
     };
     espresso.url = "github:KINGFIOX/espresso";
     fixdep.url = "github:KINGFIOX/fixdep";
-    nvboard.url = "github:KINGFIOX/nvboard";
+    nvboard = {
+      url = "github:KINGFIOX/nvboard";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     spike.url = "github:KINGFIOX/riscv-isa-sim";
   };
 
