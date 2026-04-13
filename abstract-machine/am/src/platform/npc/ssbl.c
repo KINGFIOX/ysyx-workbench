@@ -21,7 +21,7 @@ void ssbl(void) {
   while (dst < end) {
     *dst++ = 0;
   }
-  // asm volatile("fence.i" ::: "memory");
+  asm volatile("fence.i" ::: "memory");
 
   _trm_init();
 }

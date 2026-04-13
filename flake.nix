@@ -66,7 +66,7 @@
         verilogTools = with pkgs; [
           verilator
           iverilog
-          gtkwave
+          surfer
         ];
 
         sdlDeps = with pkgs; [

@@ -13,5 +13,6 @@ void fsbl(void) {
     *dst++ = *src++;
   }
 
+  asm volatile("fence.i" ::: "memory");
   ssbl();
 }

@@ -49,6 +49,9 @@ NEMUFLAGS += --batch --log=$(shell dirname $(IMAGE).elf)/nemu-log.txt
 ifdef NVBOARD
 NEMUFLAGS += --nvboard
 endif
+ifdef WAVE
+NEMUFLAGS += --wave
+endif
 
 run: insert-arg
 	$(NEMU_HOME)/build/nemu $(NEMUFLAGS) --image $(IMAGE).bin
