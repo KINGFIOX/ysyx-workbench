@@ -23,9 +23,6 @@
 #define FB_ADDR         VGA_BASE
 #define AUDIO_SBUF_ADDR 0
 
-extern char _sram_base;
-#define SRAM_END ((uintptr_t)&_sram_base + SRAM_SIZE)
-
 extern char _flash_base;
 #define FLASH_END ((uintptr_t)&_flash_base + FLASH_SIZE)
 
