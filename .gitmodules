@@ -1,6 +1,3 @@
-[submodule "nvboard"]
-	path = nvboard
-	url = git@github.com:KINGFIOX/nvboard.git
 [submodule "fceux-am"]
 	path = fceux-am
 	url = git@github.com:KINGFIOX/fceux-am.git
@@ -13,3 +10,9 @@
 [submodule "nemu"]
 	path = nemu
 	url = git@github.com:KINGFIOX/nemu.git
+[submodule "nvboard"]
+	path = nix/flakes/nvboard
+	url = git@github.com:KINGFIOX/nvboard.git
+[submodule "spike"]
+	path = nix/flakes/spike
+	url = git@github.com:KINGFIOX/riscv-isa-sim.git

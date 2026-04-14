@@ -2,16 +2,17 @@
   description = "YSYX (one student one chip) develop environments";
 
   inputs = {
+    self.submodules = true;
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     espresso.url = "github:KINGFIOX/espresso";
     fixdep.url = "github:KINGFIOX/fixdep";
     nvboard = {
-      url = "github:KINGFIOX/nvboard";
+      url = ./nix/flakes/nvboard;
       inputs.nixpkgs.follows = "nixpkgs";
     };
     spike = {
-      url = "github:KINGFIOX/riscv-isa-sim";
+      url = ./nix/flakes/spike;
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
