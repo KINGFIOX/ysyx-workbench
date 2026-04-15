@@ -47,21 +47,12 @@ static void *lut[128] = {
 
 static void fail(void *buf) { panic("access nonexist register"); }
 
-#ifdef PLATFORM_NEMU
-void __am_gpu_init();
-void __am_audio_init();
-#endif
-
 bool ioe_init() {
-  for (int i = 0; i < LENGTH(lut); i++) { // init
+  for (int i = 0; i < LENGTH(lut); i++) {
     if (!lut[i]) { lut[i] = fail; }
   }
 
   __am_timer_init();
-#ifdef PLATFORM_NEMU
-  __am_gpu_init();
-  __am_audio_init();
-#endif
   return true;
 }
 

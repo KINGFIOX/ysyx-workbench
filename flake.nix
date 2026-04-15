@@ -79,6 +79,7 @@
 
         nemuDeps = with pkgs; [
           abseil-cpp
+          dtc
         ];
 
         npcDeps = with pkgs; [

@@ -65,6 +65,12 @@ SECTIONS {
 
     *(.data*)
     *(.sdata*)
+
+    . = ALIGN(4096);
+    _ramdisk_start = .;
+    KEEP(*(.ramdisk*))
+    _ramdisk_end = .;
+
     _app_vma_end = .;
   } > dram AT> irom
   _app_lma = LOADADDR(.text);

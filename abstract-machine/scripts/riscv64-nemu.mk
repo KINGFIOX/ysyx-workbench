@@ -1,12 +1,14 @@
 include $(AM_HOME)/scripts/isa/riscv.mk
 include $(AM_HOME)/scripts/platform/nemu.mk
 CFLAGS  += -DISA_H=\"riscv/riscv.h\"
-COMMON_CFLAGS := -fno-pic -march=rv64im_zicsr -mabi=lp64 -mcmodel=medany -mstrict-align
+COMMON_CFLAGS := -fno-pic -march=rv64im_zicsr_zifencei -mabi=lp64 -mcmodel=medany -mstrict-align
 
-# Use NPC boot flow: start.S -> fsbl -> ssbl -> _trm_init
+# NPC 使用两级 bootloader: start.S -> fsbl -> ssbl -> _trm_init
+# libgcc 已移至 klib，通过 klib/Makefile 条件编译
 AM_SRCS += platform/npc/start.S \
            platform/npc/fsbl.c \
            platform/npc/ssbl.c \
-           riscv/sim/cte.c \
-           riscv/sim/trap.S \
-           riscv/sim/vme.c
+           platform/npc/smode_init.c \
+           platform/npc/cte.c \
+           platform/npc/trap.S \
+           platform/npc/vme.c

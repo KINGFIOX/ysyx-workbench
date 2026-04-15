@@ -1,11 +1,10 @@
-# NEMU platform Makefile (spike + nvboard)
-# Shares address space with NPC (uses npc-soc-config and npc-linker.ld)
+# NPC 平台 Makefile
+# NPC 使用独立的链接脚本，.text 在 mrom，.data 在 sram
 
-CFLAGS += -DPLATFORM_NEMU
+CFLAGS += -DPLATFORM_NPC
 
-AM_SRCS += platform/sim/ioe/ioe.c
-
-AM_SRCS += platform/npc/ioe/timer.c \
+AM_SRCS += platform/npc/ioe/ioe.c \
+           platform/npc/ioe/timer.c \
            platform/npc/ioe/input.c \
            platform/npc/ioe/gpu.c \
            platform/npc/ioe/audio.c \
@@ -18,6 +17,7 @@ CFLAGS    += -I$(AM_HOME)/am/src/platform/npc/include
 NPC_SOC_CONFIG_MK := $(AM_HOME)/tools/npc-soc-config.mk
 include $(NPC_SOC_CONFIG_MK)
 
+# 将地址配置传递给 C 程序
 CFLAGS += -DFLASH_BASE=$(FLASH_BASE) -DFLASH_SIZE=$(FLASH_SIZE)
 CFLAGS += -DSDRAM_BASE=$(SDRAM_BASE) -DSDRAM_SIZE=$(SDRAM_SIZE)
 CFLAGS += -DCLINT_BASE=$(CLINT_BASE) -DCLINT_SIZE=$(CLINT_SIZE)
@@ -43,16 +43,18 @@ image: image-dep
 
 .PHONY: insert-arg
 
-NEMUFLAGS += --batch --log=$(shell dirname $(IMAGE).elf)/nemu-log.txt
+# TODO: run NPC in batch mode by default for automated tests
+NPCFLAGS += --log=$(shell dirname $(IMAGE).elf)/npc-log.txt
 ifdef NVBOARD
-NEMUFLAGS += --nvboard
+NPCFLAGS += --nvboard
 endif
 ifdef WAVE
-NEMUFLAGS += --wave
+NPCFLAGS += --wave
 endif
 
+
 run: insert-arg
-	$(NEMU_HOME)/build/nemu $(NEMUFLAGS) --image $(IMAGE).bin
+	$(MAKE) -C $(NEMU_HOME) GUEST_ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
 gdb: insert-arg
-	$(NEMU_HOME)/build/nemu $(NEMUFLAGS) --image $(IMAGE).bin
+	$(MAKE) -C $(NEMU_HOME) GUEST_ISA=$(ISA) gdb ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
