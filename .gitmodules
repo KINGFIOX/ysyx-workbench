@@ -13,6 +13,6 @@
 [submodule "nvboard"]
 	path = nix/flakes/nvboard
 	url = git@github.com:KINGFIOX/nvboard.git
-[submodule "spike"]
-	path = nix/flakes/spike
-	url = git@github.com:KINGFIOX/riscv-isa-sim.git
+[submodule "xv6-riscv"]
+	path = xv6-riscv
+	url = git@github.com:KINGFIOX/xv6-am.git

@@ -11,10 +11,6 @@
       url = ./nix/flakes/nvboard;
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    spike = {
-      url = ./nix/flakes/spike;
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -25,7 +21,6 @@
       espresso,
       fixdep,
       nvboard,
-      spike,
     }:
     flake-utils.lib.eachDefaultSystem (system:
       let
@@ -83,7 +78,6 @@
         ];
 
         npcDeps = with pkgs; [
-          spike.packages.${system}.default
           nvboard.packages.${system}.default
           flex
           bison
