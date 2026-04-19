@@ -36,6 +36,7 @@
         buildTools = with pkgs; [
           gnumake
           cmake
+          cmakeCurses
           ninja
           pkg-config
           autoconf
