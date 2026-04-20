@@ -44,13 +44,17 @@ image: image-dep
 .PHONY: insert-arg
 
 # TODO: run NPC in batch mode by default for automated tests
-NPCFLAGS += --log=$(shell dirname $(IMAGE).elf)/npc-log.txt
+NPCFLAGS += --batch --log=$(shell dirname $(IMAGE).elf)/npc-log.txt
 ifdef NVBOARD
 NPCFLAGS += --nvboard
 endif
 ifdef WAVE
 NPCFLAGS += --wave
 endif
+
+FLASH_BASE ?= 0x30000000
+
+NPCFLAGS += --image_base=$(FLASH_BASE) --start_pc=$(FLASH_BASE)
 
 
 run: insert-arg

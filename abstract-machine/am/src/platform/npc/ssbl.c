@@ -1,4 +1,4 @@
-extern void smode_init(void);
+extern void _trm_init(void);
 
 extern int _app_lma;
 extern int _app_vma_start;
@@ -23,5 +23,5 @@ void ssbl(void) {
   }
   asm volatile("fence.i" ::: "memory");
 
-  smode_init();
+  _trm_init();
 }

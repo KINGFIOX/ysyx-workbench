@@ -38,8 +38,4 @@ extern char _sdram_base;
   RANGE(CLINT_BASE, CLINT_BASE + CLINT_SIZE), \
   RANGE(PLIC_BASE, PLIC_BASE + PLIC_SIZE)
 
-typedef uintptr_t PTE;
-
-#define PGSIZE    4096
-
 #endif

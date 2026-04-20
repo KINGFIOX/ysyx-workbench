@@ -6,39 +6,97 @@
 
 #define NR_REGS 32
 
-#define SSTATUS_SIE  (1ul << 1)
-#define SSTATUS_SPIE (1ul << 5)
-#define SSTATUS_SPP  (1ul << 8)
-
 typedef Context *(*handler_t)(Event, Context *);
 
 static handler_t user_handler = NULL;
 
+static void handle_unaligned_load(Context *c) {
+  uint32_t instr = *(uint32_t *)c->mepc;
+  uint32_t rd = (instr >> 7) & 0x1F;
+  uint32_t funct3 = (instr >> 12) & 0x7;
+
+  uintptr_t addr = c->mtval;
+  uintptr_t value = 0;
+
+  switch (funct3) {
+    case 0: // LB
+      value = (int8_t)*(uint8_t *)addr;
+      break;
+    case 1: // LH
+      value = (int16_t)(*(uint8_t *)addr | (*(uint8_t *)(addr + 1) << 8));
+      break;
+    case 2: // LW
+      value = *(uint8_t *)addr |
+              (*(uint8_t *)(addr + 1) << 8) |
+              (*(uint8_t *)(addr + 2) << 16) |
+              (*(uint8_t *)(addr + 3) << 24);
+      break;
+    case 4: // LBU
+      value = *(uint8_t *)addr;
+      break;
+    case 5: // LHU
+      value = *(uint8_t *)addr | (*(uint8_t *)(addr + 1) << 8);
+      break;
+    default:
+      printf("unknown load funct3: %d\n", funct3); panic("");
+  }
+
+  // x0 不可写
+  if (rd != 0) {
+    c->gpr[rd] = value;
+  }
+  c->mepc += 4;
+}
+
+static void handle_unaligned_store(Context *c) {
+  uint32_t instr = *(uint32_t *)c->mepc;
+  uint32_t funct3 = (instr >> 12) & 0x7;
+  uint32_t rs2 = (instr >> 20) & 0x1F;
+
+  uintptr_t addr = c->mtval;
+  uintptr_t value = c->gpr[rs2];
+
+  switch (funct3) {
+    case 0: // SB
+      *(uint8_t *)addr = value & 0xFF;
+      break;
+    case 1: // SH
+      *(uint8_t *)addr = value & 0xFF;
+      *(uint8_t *)(addr + 1) = (value >> 8) & 0xFF;
+      break;
+    case 2: // SW
+      *(uint8_t *)addr = value & 0xFF;
+      *(uint8_t *)(addr + 1) = (value >> 8) & 0xFF;
+      *(uint8_t *)(addr + 2) = (value >> 16) & 0xFF;
+      *(uint8_t *)(addr + 3) = (value >> 24) & 0xFF;
+      break;
+    default:
+      printf("unknown store funct3: %d\n", funct3); panic("");
+  }
+
+  c->mepc += 4;
+}
+
 Context *__am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
-    uintptr_t cause = c->mcause;
+    uintptr_t mcause = c->mcause;
 
-    if ((intptr_t)cause < 0) {
-      uintptr_t interrupt_id = cause & ((uintptr_t)-1 >> 1);
+    if ((intptr_t)mcause < 0) {
+      uintptr_t interrupt_id = mcause & ((uintptr_t)-1 >> 1);
       switch (interrupt_id) {
-        case 1: // S-mode software interrupt
-          ev.event = EVENT_IRQ_IODEV;
-          break;
-        case 5: // S-mode timer interrupt
-          ev.event = EVENT_IRQ_TIMER;
-          break;
-        case 9: // S-mode external interrupt
-          ev.event = EVENT_IRQ_IODEV;
-          break;
         default:
           ev.event = EVENT_ERROR;
-          ev.cause = cause;
+          ev.cause = mcause;
           break;
       }
     } else {
-      switch (cause) {
-        case 8: // ecall from U-mode
+      switch (mcause) {
+        case 4: // load address misaligned
+          handle_unaligned_load(c); break;
+        case 6: // store/AMO address misaligned
+          handle_unaligned_store(c); break;
+        case 11: // ecall from M-mode
           c->mepc += 4;
           if (c->GPR1 == (uintptr_t)-1) {
             ev.event = EVENT_YIELD;
@@ -46,24 +104,9 @@ Context *__am_irq_handle(Context *c) {
             ev.event = EVENT_SYSCALL;
           }
           break;
-        case 12: // instruction page fault
-          ev.event = EVENT_PAGEFAULT;
-          ev.cause = cause;
-          ev.ref = c->mtval;
-          break;
-        case 13: // load page fault
-          ev.event = EVENT_PAGEFAULT;
-          ev.cause = cause;
-          ev.ref = c->mtval;
-          break;
-        case 15: // store/AMO page fault
-          ev.event = EVENT_PAGEFAULT;
-          ev.cause = cause;
-          ev.ref = c->mtval;
-          break;
         default:
           ev.event = EVENT_ERROR;
-          ev.cause = cause;
+          ev.cause = mcause;
           break;
       }
     }
@@ -76,7 +119,7 @@ Context *__am_irq_handle(Context *c) {
 extern void __am_asm_trap(void);
 
 bool cte_init(handler_t handler) {
-  asm volatile("csrw stvec, %0" : : "r"(__am_asm_trap));
+  asm volatile("csrw mtvec, %0" : : "r"(__am_asm_trap));
 
   user_handler = handler;
 
@@ -87,10 +130,13 @@ typedef void (*entry_t)(void *);
 
 Context *kcontext(Area kstack, entry_t entry, void *arg) {
   Context *c = (Context *)((uintptr_t)kstack.end - sizeof(Context));
-  memset(c, 0, sizeof(Context));
+  for (int i = 0; i < NR_REGS; i++) {
+    c->gpr[i] = 0;
+  }
   c->mepc = (uintptr_t)entry;
   c->gpr[10] = (uintptr_t)arg; // a0
-  c->mstatus = SSTATUS_SPP | SSTATUS_SPIE; // SPP=S-mode, SPIE=1
+  c->mstatus = 0x1800; // MPP = 3 (M-mode)
+  c->mcause = 0x1800;
   c->pdir = NULL;
   return c;
 }
@@ -100,15 +146,8 @@ __attribute__((weak)) void yield() {
 }
 
 bool ienabled() {
-  uintptr_t sstatus;
-  asm volatile("csrr %0, sstatus" : "=r"(sstatus));
-  return (sstatus & SSTATUS_SIE) != 0;
+  return false;
 }
 
 void iset(bool enable) {
-  if (enable) {
-    asm volatile("csrs sstatus, %0" : : "r"(SSTATUS_SIE));
-  } else {
-    asm volatile("csrc sstatus, %0" : : "r"(SSTATUS_SIE));
-  }
 }

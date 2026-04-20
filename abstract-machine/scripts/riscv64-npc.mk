@@ -8,7 +8,5 @@ COMMON_CFLAGS := -fno-pic -march=rv64im_zicsr_zifencei -mabi=lp64 -mcmodel=medan
 AM_SRCS += platform/npc/start.S \
            platform/npc/fsbl.c \
            platform/npc/ssbl.c \
-           platform/npc/smode_init.c \
            platform/npc/cte.c \
-           platform/npc/trap.S \
-           platform/npc/vme.c
+           platform/npc/trap.S
