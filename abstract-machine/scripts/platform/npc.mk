@@ -52,9 +52,31 @@ ifdef WAVE
 NPCFLAGS += --wave
 endif
 
+# ------------------------------------------------------------------
+# Performance-counter output (--perf_json / --perf_name).
+# Enabled automatically by `make perf`; can also be forced via
+# `make run PERF=1` when you want perf metrics for an ad-hoc run.
+# ------------------------------------------------------------------
+PERF_DIR  ?= $(WORK_DIR)/build/perf
+PERF_NAME ?= $(NAME)$(if $(mainargs),-$(mainargs),)
+PERF_JSON ?= $(PERF_DIR)/$(PERF_NAME).json
+
+ifdef PERF
+NPCFLAGS += --perf_json=$(PERF_JSON) --perf_name=$(PERF_NAME)
+endif
 
 run: insert-arg
 	$(MAKE) -C $(NPC_HOME) GUEST_ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
+# `make perf` is identical to `make run` but always records the perf JSON.
+perf: export PERF := 1
+perf: insert-arg
+	@mkdir -p $(PERF_DIR)
+	$(MAKE) -C $(NPC_HOME) GUEST_ISA=$(ISA) run \
+	    ARGS="$(NPCFLAGS) --perf_json=$(PERF_JSON) --perf_name=$(PERF_NAME)" \
+	    IMG=$(IMAGE).bin
+
 gdb: insert-arg
 	$(MAKE) -C $(NPC_HOME) GUEST_ISA=$(ISA) gdb ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
+
+.PHONY: perf
